@@ -308,7 +308,6 @@ public class Operation {
                             && (binaryImage[y][x + 1] * binaryImage[y + 1][x]
                             * binaryImage[y][x - 1] == 0)) {
                         pointsToChange.add(new Point(x, y));
-                        // binaryImage[y][x] = 0;
                         hasChange = true;
                     }
                 }
@@ -598,29 +597,140 @@ public class Operation {
 
     public int getTatangga(BufferedImage image, Point p) {
         int count = 0;
-        if (image.getRGB(p.x + 1, p.y) == -16777216) {
-            count++;
-        }
-        if (image.getRGB(p.x + 1, p.y - 1) == -16777216) {
-            count++;
-        }
-        if (image.getRGB(p.x + 1, p.y + 1) == -16777216) {
-            count++;
-        }
-        if (image.getRGB(p.x, p.y - 1) == -16777216) {
-            count++;
-        }
-        if (image.getRGB(p.x, p.y + 1) == -16777216) {
-            count++;
-        }
-        if (image.getRGB(p.x - 1, p.y - 1) == -16777216) {
-            count++;
-        }
-        if (image.getRGB(p.x - 1, p.y + 1) == -16777216) {
-            count++;
-        }
-        if (image.getRGB(p.x - 1, p.y) == -16777216) {
-            count++;
+        try {
+            if (p.x == 0 && p.y == 0) {
+                if (image.getRGB(p.x + 1, p.y) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x + 1, p.y + 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x, p.y + 1) == -16777216) {
+                    count++;
+                }
+            } else if (p.x == 0 && p.y == image.getHeight()) {
+                if (image.getRGB(p.x + 1, p.y) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x + 1, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x, p.y - 1) == -16777216) {
+                    count++;
+                }
+            } else if (p.x == image.getWidth() && p.y == 0) {
+                if (image.getRGB(p.x, p.y + 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y + 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y) == -16777216) {
+                    count++;
+                }
+            } else if (p.x == image.getWidth() && p.y == image.getHeight()) {
+                if (image.getRGB(p.x, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y) == -16777216) {
+                    count++;
+                }
+            } else if (p.x == 0) {
+                if (image.getRGB(p.x + 1, p.y) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x + 1, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x + 1, p.y + 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x, p.y + 1) == -16777216) {
+                    count++;
+                }
+            } else if (p.x == image.getWidth()) {
+                if (image.getRGB(p.x, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x, p.y + 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y + 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y) == -16777216) {
+                    count++;
+                }
+            } else if (p.y == 0) {
+                if (image.getRGB(p.x + 1, p.y) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x + 1, p.y + 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x, p.y + 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y + 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y) == -16777216) {
+                    count++;
+                }
+            } else if (p.y == image.getHeight()) {
+                if (image.getRGB(p.x + 1, p.y) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x + 1, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y) == -16777216) {
+                    count++;
+                }
+            } else {
+                if (image.getRGB(p.x + 1, p.y) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x + 1, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x + 1, p.y + 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x, p.y + 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y - 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y + 1) == -16777216) {
+                    count++;
+                }
+                if (image.getRGB(p.x - 1, p.y) == -16777216) {
+                    count++;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("pinggir teuing");
+            count = 2;
         }
         return count;
     }
@@ -680,42 +790,63 @@ public class Operation {
         Point current = new Point(start.x, start.y);
         boolean run = true;
         while (run) {
-            if (tulang.getRGB(current.x + 1, current.getY()) == -16777216) {
-                data.add("0");
-                current.setXY(current.x + 1, current.getY());
-                tulang.setRGB(current.x, current.getY(), Color.WHITE.getRGB());
-            } else if (tulang.getRGB(current.x + 1, current.getY() - 1) == -16777216) {
-                data.add("7");
-                current.setXY(current.getX() + 1, current.getY() - 1);
-                tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-            } else if (tulang.getRGB(current.getX() + 1, current.getY() + 1) == -16777216) {
-                data.add("1");
-                current.setXY(current.getX() + 1, current.getY() + 1);
-                tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-            } else if (tulang.getRGB(current.getX(), current.getY() - 1) == -16777216) {
-                data.add("6");
-                current.setXY(current.getX(), current.getY() - 1);
-                tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-            } else if (tulang.getRGB(current.getX(), current.getY() + 1) == -16777216) {
-                data.add("2");
-                current.setXY(current.getX(), current.getY() + 1);
-                tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-            } else if (tulang.getRGB(current.getX() - 1, current.getY() - 1) == -16777216) {
-                data.add("5");
-                current.setXY(current.getX() - 1, current.getY() - 1);
-                tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-            } else if (tulang.getRGB(current.getX() - 1, current.getY() + 1) == -16777216) {
-                data.add("3");
-                current.setXY(current.getX() - 1, current.getY() + 1);
-                tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-            } else if (tulang.getRGB(current.getX() - 1, current.getY()) == -16777216) {
-                data.add("4");
-                current.setXY(current.getX() - 1, current.getY());
-                tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-            } else {
+            try {
+                if (tulang.getRGB(current.x + 1, current.getY()) == -16777216) {
+                    data.add("0");
+                    current.setXY(current.x + 1, current.getY());
+                    tulang.setRGB(current.x, current.getY(), Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.x + 1, current.getY() - 1) == -16777216) {
+                    data.add("7");
+                    current.setXY(current.getX() + 1, current.getY() - 1);
+                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.getX() + 1, current.getY() + 1) == -16777216) {
+                    data.add("1");
+                    current.setXY(current.getX() + 1, current.getY() + 1);
+                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.getX(), current.getY() - 1) == -16777216) {
+                    data.add("6");
+                    current.setXY(current.getX(), current.getY() - 1);
+                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.getX(), current.getY() + 1) == -16777216) {
+                    data.add("2");
+                    current.setXY(current.getX(), current.getY() + 1);
+                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.getX() - 1, current.getY() - 1) == -16777216) {
+                    data.add("5");
+                    current.setXY(current.getX() - 1, current.getY() - 1);
+                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.getX() - 1, current.getY() + 1) == -16777216) {
+                    data.add("3");
+                    current.setXY(current.getX() - 1, current.getY() + 1);
+                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.getX() - 1, current.getY()) == -16777216) {
+                    data.add("4");
+                    current.setXY(current.getX() - 1, current.getY());
+                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
+                } else {
+                    run = false;
+                }
+            } catch (Exception e) {
+                System.out.println("out out");
                 run = false;
             }
         }
         return data;
+    }
+
+    public BufferedImage benerinTulang(BufferedImage tulang) {
+        BufferedImage tmp = new BufferedImage(tulang.getColorModel(), tulang.copyData(null), tulang.isAlphaPremultiplied(), null);
+        Point p = new Point();
+        for (int i = 0; i < tmp.getHeight(); i++) {
+            for (int j = 0; j < tmp.getWidth(); j++) {
+                if (tmp.getRGB(i, j) == -16777216) {
+                    p.setXY(j, i);
+                    if (getTatangga(tmp, p) > 2) {
+
+                    }
+                }
+            }
+        }
+        return tmp;
     }
 }

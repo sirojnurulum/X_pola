@@ -6,12 +6,9 @@
 package pola.app;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -188,12 +185,6 @@ public class MainPageController implements Initializable {
         fileImageOri = new FileChooser().showOpenDialog(main.getPrimaryStage());
         buffOri = ImageIO.read(fileImageOri);
 
-        WritableRaster raster = buffOri.getRaster();
-        DataBuffer data = raster.getDataBuffer();
-        int[] x = new int[raster.getWidth()];
-        x = raster.getPixel(0, 0, x);
-        System.out.println(Arrays.toString(x));
-
         if (fileImageOri != null) {
             chartHistogram.getData().clear();
             chartEqHistogram.getData().clear();
@@ -238,7 +229,7 @@ public class MainPageController implements Initializable {
         setIvChainCodeBolong(buffBolong);
         setIvKodeBelok(buffBw);
         setIvKodeBelokBolong(buffBolong);
-        setIvTulangBw(buffBolong);
+        setIvTulangBw(buffOri);
         setIvTulangResult(buffTulang);
         setIvHuruf(buffBolong);
     }
