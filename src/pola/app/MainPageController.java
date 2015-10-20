@@ -194,7 +194,7 @@ public class MainPageController implements Initializable {
         setIvKodeBelokBolong(buffBolong);
         setIvTulangBw(buffOri);
         setIvTulangResult(buffTulang);
-        setIvHuruf(buffBolong);
+        setIvHuruf(buffTulang);
     }
 
     private void setTextView() {
@@ -316,7 +316,7 @@ public class MainPageController implements Initializable {
             seriesEq.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 0, 1.0);");
         }
     }
-    
+
     @FXML
     public void sliderListener() {
         int valFrom = (int) Math.round(sliderEqHistogramFrom.getValue());
