@@ -75,7 +75,9 @@ public class MainPageController implements Initializable {
     @FXML
     LineChart chartEqHistogram;
     @FXML
-    Slider sliderEqHistogram;
+    Slider sliderEqHistogramFrom;
+    @FXML
+    Slider sliderEqHistogramTo;
     @FXML
     ImageView ivChainCode;
     @FXML
@@ -118,48 +120,9 @@ public class MainPageController implements Initializable {
         setMap();
         tab.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) -> {
             if (newValue == tabHistogram) {
-                if (chartHistogram.getData().size() == 0) {
-                    setIvHistogram(Gambar.toBufferedImage(gambar.original));
-
-                    XYChart.Series seriesR = new XYChart.Series();
-                    XYChart.Series seriesG = new XYChart.Series();
-                    XYChart.Series seriesB = new XYChart.Series();
-                    XYChart.Series seriesGray = new XYChart.Series();
-
-                    ObservableList dataR = seriesR.getData();
-                    ObservableList dataG = seriesG.getData();
-                    ObservableList dataB = seriesB.getData();
-                    ObservableList dataGray = seriesGray.getData();
-
-                    for (int i = 0; i < 256; i++) {
-                        dataR.add(new XYChart.Data(i, gambar.histogram.r[i]));
-                        dataG.add(new XYChart.Data(i, gambar.histogram.g[i]));
-                        dataB.add(new XYChart.Data(i, gambar.histogram.b[i]));
-                        dataGray.add(new XYChart.Data(i, gambar.histogram.gray[i]));
-                    }
-                    chartHistogram.getData().add(seriesR);
-                    chartHistogram.getData().add(seriesG);
-                    chartHistogram.getData().add(seriesB);
-                    chartHistogram.getData().add(seriesGray);
-
-                    seriesR.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(255, 0, 0, 1.0);");
-                    seriesG.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 255, 0, 1.0);");
-                    seriesB.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 255, 1.0);");
-                    seriesGray.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(128, 128, 128, 1.0);");
-                }
+                createGraph();
             } else if (newValue == tabEkualisasiHistogram) {
-                if (chartEqHistogram.getData().size() == 0) {
-                    gambar.equalize(0, 255);
-                    setIvHistogramEq(Gambar.toBufferedImage(gambar.equalized));
-
-                    XYChart.Series seriesGray = new XYChart.Series();
-                    ObservableList dataGray = seriesGray.getData();
-                    for (int i = 0; i < 256; i++) {
-                        dataGray.add(new XYChart.Data(i, gambar.histogram.equalized[i]));
-                    }
-                    chartEqHistogram.getData().add(seriesGray);
-                    seriesGray.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(128, 128, 128, 1.0);");
-                }
+                createEqGraph(0, 255);
             }
         });
     }
@@ -292,7 +255,35 @@ public class MainPageController implements Initializable {
     }
 
     private void createGraph() {
+        if (chartHistogram.getData().size() == 0) {
+            setIvHistogram(Gambar.toBufferedImage(gambar.original));
 
+            XYChart.Series seriesR = new XYChart.Series();
+            XYChart.Series seriesG = new XYChart.Series();
+            XYChart.Series seriesB = new XYChart.Series();
+            XYChart.Series seriesGray = new XYChart.Series();
+
+            ObservableList dataR = seriesR.getData();
+            ObservableList dataG = seriesG.getData();
+            ObservableList dataB = seriesB.getData();
+            ObservableList dataGray = seriesGray.getData();
+
+            for (int i = 0; i < 256; i++) {
+                dataR.add(new XYChart.Data(i, gambar.histogram.r[i]));
+                dataG.add(new XYChart.Data(i, gambar.histogram.g[i]));
+                dataB.add(new XYChart.Data(i, gambar.histogram.b[i]));
+                dataGray.add(new XYChart.Data(i, gambar.histogram.gray[i]));
+            }
+            chartHistogram.getData().add(seriesR);
+            chartHistogram.getData().add(seriesG);
+            chartHistogram.getData().add(seriesB);
+            chartHistogram.getData().add(seriesGray);
+
+            seriesR.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(255, 0, 0, 1.0);");
+            seriesG.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 255, 0, 1.0);");
+            seriesB.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 255, 1.0);");
+            seriesGray.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(128, 128, 128, 1.0);");
+        }
     }
 //ekualisasi histogram
 
@@ -306,12 +297,34 @@ public class MainPageController implements Initializable {
         }
     }
 
-    private void createEqGraph() {
+    private void createEqGraph(int from, int to) {
+        if (chartEqHistogram.getData().size() == 0) {
+            gambar.equalize(from, to);
+            setIvHistogramEq(Gambar.toBufferedImage(gambar.equalized));
 
+            XYChart.Series seriesGray = new XYChart.Series();
+            XYChart.Series seriesEq = new XYChart.Series();
+            ObservableList dataGray = seriesGray.getData();
+            ObservableList dataEq = seriesEq.getData();
+            for (int i = 0; i < 256; i++) {
+                dataGray.add(new XYChart.Data(i, gambar.histogram.gray[i]));
+                dataEq.add(new XYChart.Data(i, gambar.histogram.equalized[i]));
+            }
+            chartEqHistogram.getData().add(seriesGray);
+            chartEqHistogram.getData().add(seriesEq);
+            seriesGray.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(255, 128, 128, 1.0);");
+            seriesEq.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 0, 1.0);");
+        }
     }
-
+    
     @FXML
     public void sliderListener() {
+        int valFrom = (int) Math.round(sliderEqHistogramFrom.getValue());
+        int valTo = (int) Math.round(sliderEqHistogramTo.getValue());
+        int from = valFrom <= valTo ? valFrom : valTo;
+        int to = valFrom <= valTo ? valTo : valFrom;
+        chartEqHistogram.getData().clear();
+        createEqGraph(from, to);
     }
 //chain code
 
