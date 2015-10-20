@@ -105,6 +105,11 @@ public class Gambar {
             h = (int) Math.round(255.0 * (cumm - fromCdf) / (countPixel - fromCdf));
             cdf[i] = new Cdf(cumm, h);
         }
+        
+        // reset
+        for (int i = 0; i < 256; i++) {
+            histogram.equalized[i] = 0;
+        }
 
         // create image
         int colorNew;
