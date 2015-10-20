@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pola.app.MainPageController">
+    <center>
+        <TabPane fx:id="tab" prefHeight="500.0" prefWidth="500.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+            <tabs>
+                <Tab fx:id="tabMainPage" text="Main Page">
+                    <content>
+                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                            <children>
+                                <GridPane layoutX="1.0" prefHeight="90.0" prefWidth="449.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints maxHeight="241.0" minHeight="10.0" prefHeight="214.0" valignment="CENTER" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="313.0" minHeight="10.0" prefHeight="218.0" valignment="CENTER" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="151.0" minHeight="0.0" prefHeight="31.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <children>
+                                        <ImageView fx:id="ivMainOri" fitHeight="200.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
+                                            <GridPane.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                            </GridPane.margin>
+                                        </ImageView>
+                                        <Button fx:id="btnPilihGambar" mnemonicParsing="false" onAction="#chooseImage" prefHeight="24.0" prefWidth="90.0" text="Pilih Gambar" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+                                        <ImageView fx:id="ivMainGray" fitHeight="200.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1">
+                                            <GridPane.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                            </GridPane.margin>
+                                        </ImageView>
+                                        <ImageView fx:id="ivMainBw" fitHeight="200.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <ImageView fx:id="ivMainGrayEq" fitHeight="200.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1" />
+                                    </children>
+                                    <padding>
+                                        <Insets top="2.0" />
+                                    </padding>
+                                </GridPane>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="tabHistogram" text="Histogram">
+                    <content>
+                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                            <children>
+                                <LineChart fx:id="chartHistogram" animated="false" createSymbols="false" layoutX="333.0" layoutY="14.0" legendVisible="false" prefHeight="443.0" prefWidth="353.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="345.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+                                    <xAxis>
+                                        <NumberAxis autoRanging="false" lowerBound="0" side="BOTTOM" tickUnit="64" upperBound="255" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis side="LEFT" />
+                                    </yAxis>
+                                </LineChart>
+                                <ImageView fx:id="ivHistogram" fitHeight="444.0" fitWidth="327.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="355.0" AnchorPane.topAnchor="14.0" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="tabEkualisasiHistogram" text="Ekualisasi Histogram">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <LineChart fx:id="chartEqHistogram" animated="false" createSymbols="false" layoutX="345.0" layoutY="14.0" legendVisible="false" prefHeight="358.0" prefWidth="341.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="345.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+                                    <xAxis>
+                                        <NumberAxis autoRanging="false" lowerBound="0" side="BOTTOM" tickUnit="64" upperBound="255" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis side="LEFT" />
+                                    </yAxis>
+                                </LineChart>
+                                <ImageView fx:id="ivEqHistogram" fitHeight="333.0" fitWidth="331.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="355.0" AnchorPane.topAnchor="14.0" />
+                                <Slider fx:id="sliderEqHistogram" layoutX="19.0" layoutY="424.0" prefHeight="13.0" prefWidth="401.0" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="19.0" AnchorPane.rightAnchor="19.0" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="tabChainCode" text="Chain Code">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <TextArea fx:id="textChainCode" editable="false" layoutX="182.0" layoutY="14.0" prefHeight="444.0" prefWidth="504.0" wrapText="true" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="182.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0" />
+                                <ImageView fx:id="ivChainCode" fitHeight="150.0" fitWidth="150.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="530.0" AnchorPane.topAnchor="14.0" />
+                                <ImageView fx:id="ivChainCodeBolong" fitHeight="150.0" fitWidth="150.0" layoutX="14.0" layoutY="147.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="530.0" AnchorPane.topAnchor="170.0" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="tabKodeBelok" text="Kode Belok">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <ImageView fx:id="ivKodeBelok" fitHeight="150.0" fitWidth="150.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="530.0" AnchorPane.topAnchor="14.0" />
+                                <TextArea fx:id="textKodeBelok" editable="false" layoutX="486.0" layoutY="14.0" prefHeight="200.0" prefWidth="200.0" wrapText="true" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="182.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0" />
+                                <ImageView fx:id="ivKodeBelokBolong" fitHeight="150.0" fitWidth="150.0" layoutX="14.0" layoutY="170.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="530.0" AnchorPane.topAnchor="170.0" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="tabTulang" text="Tulang">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <GridPane layoutX="250.0" layoutY="191.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="356.0" minWidth="10.0" prefWidth="350.0" />
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="248.0" minHeight="10.0" prefHeight="246.0" valignment="CENTER" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <children>
+                                        <ImageView fx:id="ivTulangBw" fitHeight="220.0" fitWidth="330.0" pickOnBounds="true" preserveRatio="true" />
+                                        <ImageView fx:id="ivTulangResult" fitHeight="220.0" fitWidth="330.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1" />
+                              <TextArea fx:id="textTulangChain" editable="false" wrapText="true" GridPane.columnIndex="1" GridPane.rowSpan="2">
+                                 <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </GridPane.margin></TextArea>
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+            <Tab fx:id="tabHuruf" text="Huruf">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ImageView fx:id="ivHuruf" fitHeight="300.0" fitWidth="300.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="386.0" AnchorPane.topAnchor="14.0" />
+                        <Label fx:id="textHuruf" layoutX="350.0" layoutY="14.0" text="--" />
+                     </children></AnchorPane>
+              </content>
+            </Tab>
+            </tabs>
+        </TabPane>
+    </center>
+</BorderPane>
