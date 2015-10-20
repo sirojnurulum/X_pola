@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.image.*?>
@@ -80,9 +81,9 @@
                                     </yAxis>
                                 </LineChart>
                                 <ImageView fx:id="ivEqHistogram" fitHeight="333.0" fitWidth="331.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="355.0" AnchorPane.topAnchor="14.0" />
-                                <Slider fx:id="sliderEqHistogramFrom" layoutX="19.0" layoutY="424.0" prefHeight="13.0" prefWidth="350.0" AnchorPane.bottomAnchor="90.0" AnchorPane.leftAnchor="365.0" AnchorPane.rightAnchor="22.0" min="0" max="255" value="0" />
-                                <Slider fx:id="sliderEqHistogramTo" layoutX="19.0" layoutY="424.0" prefHeight="13.0" prefWidth="350.0" AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="365.0" AnchorPane.rightAnchor="22.0" min="0" max="255" value="255" />
-                                <Button fx:id="buttonEq" text="Equalize" AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="22.0" onAction="#sliderListener" ></Button> 
+                                <Slider fx:id="sliderEqHistogramFrom" layoutX="19.0" layoutY="424.0" max="255" min="0" prefHeight="13.0" prefWidth="350.0" value="0" AnchorPane.bottomAnchor="90.0" AnchorPane.leftAnchor="365.0" AnchorPane.rightAnchor="22.0" />
+                                <Slider fx:id="sliderEqHistogramTo" layoutX="19.0" layoutY="424.0" max="255" min="0" prefHeight="13.0" prefWidth="350.0" value="255" AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="365.0" AnchorPane.rightAnchor="22.0" />
+                                <Button fx:id="buttonEq" onAction="#sliderListener" text="Equalize" AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="22.0" /> 
                             </children>
                         </AnchorPane>
                     </content>
@@ -140,7 +141,10 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <ImageView fx:id="ivHuruf" fitHeight="300.0" fitWidth="300.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="386.0" AnchorPane.topAnchor="14.0" />
-                        <Label fx:id="textHuruf" layoutX="350.0" layoutY="14.0" text="--" />
+                        <Label fx:id="textHuruf" layoutX="350.0" layoutY="14.0" text="--">
+                           <font>
+                              <Font size="24.0" />
+                           </font></Label>
                      </children></AnchorPane>
               </content>
             </Tab>
