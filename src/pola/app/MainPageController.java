@@ -352,12 +352,14 @@ public class MainPageController implements Initializable {
         String chain = "";
         int q = 1;
         for (List<String> x : chainData) {
-            chain += "Object : " + q + "\n";
-            Iterator j = x.iterator();
-            while (j.hasNext()) {
-                chain += j.next() + ",";
+            if (x.size() > 0) {
+                chain += "Object : " + q + "\n";
+                Iterator j = x.iterator();
+                while (j.hasNext()) {
+                    chain += j.next() + ",";
+                }
+                chain += "\n";
             }
-            chain += "\n";
             q++;
         }
         textChainCode.setText(chain);
@@ -388,12 +390,14 @@ public class MainPageController implements Initializable {
         String belok = "";
         int q = 1;
         for (List<String> x : belokData) {
-            belok += "Object : " + q + "\n";
-            Iterator i = x.iterator();
-            while (i.hasNext()) {
-                belok += i.next() + ",";
+            if (x.size() > 0) {
+                belok += "Object : " + q + "\n";
+                Iterator i = x.iterator();
+                while (i.hasNext()) {
+                    belok += i.next() + ",";
+                }
+                belok += "\n";
             }
-            belok += "\n";
             q++;
         }
         textKodeBelok.setText(belok);
