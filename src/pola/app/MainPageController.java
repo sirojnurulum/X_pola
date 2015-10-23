@@ -6,11 +6,9 @@
 package pola.app;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -117,19 +115,19 @@ public class MainPageController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        for (ImageView iv : new ImageView[] {
-                ivMainOri, ivMainGray, ivMainGrayEq, ivMainBw,
-                ivHistogram, ivEqHistogram,
-                ivChainCode, ivChainCodeBolong,
-                ivKodeBelok, ivKodeBelokBolong,
-                ivTulangBw, ivTulangResult,
-                ivHuruf }) {
-            iv.setUserData(new double[] { iv.getFitWidth(), iv.getFitHeight() });
+        for (ImageView iv : new ImageView[]{
+            ivMainOri, ivMainGray, ivMainGrayEq, ivMainBw,
+            ivHistogram, ivEqHistogram,
+            ivChainCode, ivChainCodeBolong,
+            ivKodeBelok, ivKodeBelokBolong,
+            ivTulangBw, ivTulangResult,
+            ivHuruf}) {
+            iv.setUserData(new double[]{iv.getFitWidth(), iv.getFitHeight()});
         }
-        
+
         setTabAccess(false);
         setMap();
-        
+
         tab.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) -> {
             if (newValue == tabHistogram) {
                 openTabHistogram();
@@ -147,11 +145,11 @@ public class MainPageController implements Initializable {
         });
     }
     private FXMain main;
-    
+
     public void setMain(FXMain main) {
         this.main = main;
     }
-    
+
     private void setTabAccess(boolean active) {
         tabChainCode.setDisable(!active);
         tabEkualisasiHistogram.setDisable(!active);
@@ -160,25 +158,25 @@ public class MainPageController implements Initializable {
         tabTulang.setDisable(!active);
         tabHuruf.setDisable(!active);
     }
-    
+
     @FXML
     public void chooseImage() throws IOException {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG"), new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG"));
         fileImageOri = new FileChooser().showOpenDialog(main.getPrimaryStage());
         buffOri = ImageIO.read(fileImageOri);
-        
+
         if (fileImageOri != null) {
-            
+
             // reset
             chartHistogram.getData().clear();
             chartEqHistogram.getData().clear();
             chainData = null;
             belokData = null;
             textTulangChain.setText("");
-            
+
             gambar = new Gambar(fileImageOri);
-            
+
             setBufferedImage();
             setImageView();
             //setTextView(); // tidak perlu
@@ -188,19 +186,19 @@ public class MainPageController implements Initializable {
             main.showAlert("Error", "File Chooser", "No Picture Selected !!!", Alert.AlertType.INFORMATION);
         }
     }
-    
+
     private void openTabHistogram() {
         if (chartHistogram.getData().size() == 0) {
             XYChart.Series seriesR = new XYChart.Series();
             XYChart.Series seriesG = new XYChart.Series();
             XYChart.Series seriesB = new XYChart.Series();
             XYChart.Series seriesGray = new XYChart.Series();
-            
+
             ObservableList dataR = seriesR.getData();
             ObservableList dataG = seriesG.getData();
             ObservableList dataB = seriesB.getData();
             ObservableList dataGray = seriesGray.getData();
-            
+
             for (int i = 0; i < 256; i++) {
                 dataR.add(new XYChart.Data(i, gambar.histogram.r[i]));
                 dataG.add(new XYChart.Data(i, gambar.histogram.g[i]));
@@ -211,20 +209,20 @@ public class MainPageController implements Initializable {
             chartHistogram.getData().add(seriesG);
             chartHistogram.getData().add(seriesB);
             chartHistogram.getData().add(seriesGray);
-            
+
             seriesR.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(255, 0, 0, 1.0);");
             seriesG.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 255, 0, 1.0);");
             seriesB.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 255, 1.0);");
             seriesGray.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(128, 128, 128, 1.0);");
         }
     }
-    
+
     private void openTabEkualisasiHistogram(int from, int to) {
         if (chartEqHistogram.getData().size() == 0) {
             gambar.equalize(from, to);
             gambar.updateBufferedImage();
             setIvImage(ivEqHistogram, gambar.biEqualized);
-            
+
             XYChart.Series seriesGray = new XYChart.Series();
             XYChart.Series seriesEq = new XYChart.Series();
             ObservableList dataGray = seriesGray.getData();
@@ -239,14 +237,14 @@ public class MainPageController implements Initializable {
             seriesEq.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 0, 1.0);");
         }
     }
-    
+
     private void openTabChainCode() {
         if (chainData == null) {
             chainData = Operation.getOp().getChainCode(gambar.biBolong);
             setTextChainCode();
         }
     }
-    
+
     private void openTabKodeBelok() {
         if (belokData == null) {
             openTabChainCode();
@@ -254,7 +252,7 @@ public class MainPageController implements Initializable {
             setTextKodeBelok();
         }
     }
-    
+
     private void openTabTulang() {
         if (textTulangChain.getText().length() == 0) {
             gambar.tulangin();
@@ -264,11 +262,11 @@ public class MainPageController implements Initializable {
             setTextTulangChain(Operation.getOp().getChainCodeTulang(gambar.biTulang));
         }
     }
-    
+
     private void openTabHuruf() {
         openTabTulang();
     }
-    
+
     private void setBufferedImage() throws IOException {
         buffOri = ImageIO.read(fileImageOri);
         buffGray = gambar.biGrayscale;
@@ -279,7 +277,7 @@ public class MainPageController implements Initializable {
         //chainData = Operation.getOp().getChainCode(buffBolong); // tidak perlu
         //belokData = Operation.getOp().getKodeBelok(chainData); // tidak perlu
     }
-    
+
     private void setImageView() {
         setIvImage(ivMainOri, buffOri);
         setIvImage(ivMainGray, buffGray);
@@ -292,24 +290,24 @@ public class MainPageController implements Initializable {
         setIvImage(ivKodeBelok, buffBw);
         setIvImage(ivKodeBelokBolong, buffBolong);
         setIvImage(ivTulangBw, buffOri);
-        
+
         //setIvTulangResult(buffTulang); // tidak perlu
         //setIvHuruf(buffTulang); // tidak perlu
     }
-    
+
     @Deprecated
     private void setTextView() {
         //setTextChainCode(); // tidak perlu
         //setTextKodeBelok(); // tidak perlu
         //setTextTulangChain(Operation.getOp().getChainCodeTulang(buffTulang)); // tidak perlu
     }
-    
+
     private void setIvImage(ImageView iv, BufferedImage image) {
         // reset
         double[] size = (double[]) iv.getUserData();
         iv.setFitWidth(size[0]);
         iv.setFitHeight(size[1]);
-        
+
         // set
         if (image.getWidth() > iv.getFitWidth() || image.getHeight() > iv.getFitHeight()) {
             iv.setImage(SwingFXUtils.toFXImage(image, null));
@@ -319,7 +317,7 @@ public class MainPageController implements Initializable {
             iv.setFitWidth(image.getWidth());
         }
     }
-    
+
     @Deprecated
     private void setIvMainOriImage(BufferedImage image) {
         if (image.getWidth() > ivMainOri.getFitWidth() || image.getHeight() > ivMainOri.getFitHeight()) {
@@ -330,7 +328,7 @@ public class MainPageController implements Initializable {
             ivMainOri.setFitWidth(image.getWidth());
         }
     }
-    
+
     @Deprecated
     private void setIvMainGrayImage(BufferedImage image) {
         if (image.getWidth() > ivMainGray.getFitWidth() || image.getHeight() > ivMainGray.getFitHeight()) {
@@ -341,7 +339,7 @@ public class MainPageController implements Initializable {
             ivMainGray.setFitWidth(image.getWidth());
         }
     }
-    
+
     @Deprecated
     private void setIvMainGrayEqImage(BufferedImage image) {
         if (image.getWidth() > ivMainGrayEq.getFitWidth() || image.getHeight() > ivMainGrayEq.getFitHeight()) {
@@ -352,7 +350,7 @@ public class MainPageController implements Initializable {
             ivMainGrayEq.setFitWidth(image.getWidth());
         }
     }
-    
+
     @Deprecated
     private void setIvMainBwImage(BufferedImage image) {
         if (image.getWidth() > ivMainBw.getFitWidth() || image.getHeight() > ivMainBw.getFitHeight()) {
@@ -375,7 +373,7 @@ public class MainPageController implements Initializable {
             ivHistogram.setFitWidth(image.getWidth());
         }
     }
-    
+
     @Deprecated
     private void createGraph() {
         if (chartHistogram.getData().size() == 0) {
@@ -383,12 +381,12 @@ public class MainPageController implements Initializable {
             XYChart.Series seriesG = new XYChart.Series();
             XYChart.Series seriesB = new XYChart.Series();
             XYChart.Series seriesGray = new XYChart.Series();
-            
+
             ObservableList dataR = seriesR.getData();
             ObservableList dataG = seriesG.getData();
             ObservableList dataB = seriesB.getData();
             ObservableList dataGray = seriesGray.getData();
-            
+
             for (int i = 0; i < 256; i++) {
                 dataR.add(new XYChart.Data(i, gambar.histogram.r[i]));
                 dataG.add(new XYChart.Data(i, gambar.histogram.g[i]));
@@ -399,7 +397,7 @@ public class MainPageController implements Initializable {
             chartHistogram.getData().add(seriesG);
             chartHistogram.getData().add(seriesB);
             chartHistogram.getData().add(seriesGray);
-            
+
             seriesR.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(255, 0, 0, 1.0);");
             seriesG.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 255, 0, 1.0);");
             seriesB.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 255, 1.0);");
@@ -418,14 +416,14 @@ public class MainPageController implements Initializable {
             ivEqHistogram.setFitWidth(image.getWidth());
         }
     }
-    
+
     @Deprecated
     private void createEqGraph(int from, int to) {
         if (chartEqHistogram.getData().size() == 0) {
             gambar.equalize(from, to);
             gambar.updateBufferedImage();
 //            setIvHistogramEq(gambar.biEqualized);
-            
+
             XYChart.Series seriesGray = new XYChart.Series();
             XYChart.Series seriesEq = new XYChart.Series();
             ObservableList dataGray = seriesGray.getData();
@@ -440,14 +438,14 @@ public class MainPageController implements Initializable {
             seriesEq.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 0, 1.0);");
         }
     }
-    
+
     @FXML
     public void sliderListener() {
         int valFrom = (int) Math.round(sliderEqHistogramFrom.getValue());
         int valTo = (int) Math.round(sliderEqHistogramTo.getValue());
         int from = valFrom <= valTo ? valFrom : valTo;
         int to = valFrom <= valTo ? valTo : valFrom;
-        
+
         chartEqHistogram.getData().clear();
         openTabEkualisasiHistogram(from, to);
     }
@@ -463,7 +461,7 @@ public class MainPageController implements Initializable {
             ivChainCode.setFitWidth(image.getWidth());
         }
     }
-    
+
     @Deprecated
     private void setIvChainCodeBolong(BufferedImage image) {
         if (image.getWidth() > ivChainCodeBolong.getFitWidth() || image.getHeight() > ivChainCodeBolong.getFitHeight()) {
@@ -474,7 +472,7 @@ public class MainPageController implements Initializable {
             ivChainCodeBolong.setFitWidth(image.getWidth());
         }
     }
-    
+
     private void setTextChainCode() {
         String chain = "";
         int q = 1;
@@ -503,7 +501,7 @@ public class MainPageController implements Initializable {
             ivKodeBelok.setFitWidth(image.getWidth());
         }
     }
-    
+
     @Deprecated
     private void setIvKodeBelokBolong(BufferedImage image) {
         if (image.getWidth() > ivKodeBelokBolong.getFitWidth() || image.getHeight() > ivKodeBelokBolong.getFitHeight()) {
@@ -514,7 +512,7 @@ public class MainPageController implements Initializable {
             ivKodeBelokBolong.setFitWidth(image.getWidth());
         }
     }
-    
+
     private void setTextKodeBelok() {
         String belok = "";
         int q = 1;
@@ -543,7 +541,7 @@ public class MainPageController implements Initializable {
             ivTulangBw.setFitWidth(image.getWidth());
         }
     }
-    
+
     @Deprecated
     private void setIvTulangResult(BufferedImage image) {
         if (image.getWidth() > ivTulangResult.getFitWidth() || image.getHeight() > ivTulangResult.getFitHeight()) {
@@ -554,7 +552,7 @@ public class MainPageController implements Initializable {
             ivTulangResult.setFitWidth(image.getWidth());
         }
     }
-    
+
     private void setTextTulangChain(List<List<String>> data) {
         List<String> cabang = data.get(0);
         data.remove(0);
@@ -582,11 +580,11 @@ public class MainPageController implements Initializable {
             ivHuruf.setFitWidth(image.getWidth());
         }
     }
-    
+
     private void setTextHuruf(String huruf) {
         textHuruf.setText(huruf);
     }
-    
+
     private void setMap() {
         td.put("7,+,0,-,7,7,7,-,6,+,7,7,7,7,7,7,+,0,-,7,+,0,-,7,+,0,0,0,-,7,+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,+,1,-,0,0,0,+,1,-,0,+,1,-,0,+,1,1,1,1,+,2,2,-,1,+,2,2,2,-,1,+,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,-,1,+,2,2,2,2,2,2,-,7,-,6,6,6,+,7,-,6,6,+,7,7,7,7,+,0,-,7,7,+,0,-,7,+,0,0,0,-,7,+,0,0,0,0,0,-,7,+,0,0,0,0,0,-,7,+,0,0,0,-,7,+,0,0,0,0,-,7,+,0,0,0,0,0,0,0,0,0,6,2,2,2,-,1,+,2,2,2,-,1,+,2,-,1,+,2,-,1,-,0,+,1,1,-,0,0,+,1,-,0,+,1,-,0,0,0,0,0,0,0,0,0,-,7,+,0,0,0,0,0,0,-,7,+,0,-,7,+,0,-,7,+,0,0,-,7,7,7,+,0,0,-,7,+,0,-,7,+,0,0,-,7,-,7,7,7,7,", "a");
         td.put("2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,-,1,-,7,+,0,-,7,+,0,0,-,7,+,0,-,7,+,0,-,7,+,0,-,7,7,7,+,0,0,-,7,+,0,-,7,+,0,0,0,0,0,0,0,0,0,0,+,1,-,0,0,+,1,-,0,+,1,-,0,+,1,1,1,1,+,2,-,1,1,+,2,-,1,+,2,-,1,+,2,2,-,1,+,2,2,2,2,-,1,+,2,2,2,-,1,+,2,2,2,2,2,2,2,2,2,2,+,3,-,2,2,2,+,3,-,2,2,2,2,+,3,-,2,2,+,3,3,-,2,+,3,-,2,+,3,+,6,-,3,-,2,+,3,3,3,+,4,-,3,+,4,-,3,+,4,-,3,+,6,-,3,+,4,4,-,3,+,4,4,4,4,4,+,5,-,4,4,4,4,+,5,-,2,+,5,5,-,4,+,5,5,-,2,+,5,+,6,-,4,4,+,5,-,4,4,+,5,-,4,+,5,5,-,2,+,3,+,7,-,6,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,1,1,", "b");
