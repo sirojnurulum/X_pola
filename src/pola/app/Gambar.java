@@ -251,6 +251,41 @@ public class Gambar {
                 }
             }
         }
+        
+        // remove 'tangga'
+        for (int y = 1; y < height - 1; y++) {
+            for (int x = 1; x < width - 1; x++) {
+                if (tulang[y][x]) {
+                    if ((getP(x, y, 2) && getP(x, y, 3) && getP(x, y, 8)) ||
+                            (getP(x, y, 3) && getP(x, y, 4) && getP(x, y, 6)) ||
+                            (getP(x, y, 4) && getP(x, y, 5) && getP(x, y, 2)) ||
+                            (getP(x, y, 5) && getP(x, y, 6) && getP(x, y, 8)) ||
+                            (getP(x, y, 6) && getP(x, y, 7) && getP(x, y, 4)) ||
+                            (getP(x, y, 7) && getP(x, y, 8) && getP(x, y, 2)) ||
+                            (getP(x, y, 8) && getP(x, y, 9) && getP(x, y, 6)) ||
+                            (getP(x, y, 9) && getP(x, y, 2) && getP(x, y, 4))) {
+                        tulang[y][x] = false;
+                    }
+                }
+            }
+        }
+        
+        // remove 'siku'
+        for (int y = 1; y < height - 1; y++) {
+            for (int x = 1; x < width - 1; x++) {
+                if (tulang[y][x]) {
+                    int countBlackNeighbor = getCountBlackNeighbor(x, y);
+                    if (countBlackNeighbor == 2) {
+                        if ((getP(x, y, 2) && (getP(x, y, 4))) ||
+                                (getP(x, y, 4) && (getP(x, y, 6))) ||
+                                (getP(x, y, 6) && (getP(x, y, 8))) ||
+                                (getP(x, y, 8) && (getP(x, y, 2)))) {
+                            tulang[y][x] = false;
+                        }
+                    }
+                }
+            }
+        }
     }
     
     private boolean getP(int x, int y, int p) {
