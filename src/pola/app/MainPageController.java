@@ -108,13 +108,6 @@ public class MainPageController implements Initializable {
     Gambar gambar;
     List<List<String>> chainData, belokData;
     HashMap<String, String> td = new HashMap<>();
-    
-    private double[] oriSizeIvOri, oriSizeIvGray, oriSizeIvGrayEq, oriSizeIvBw,
-            oriSizeIvHistogram, oriSizeIvEqHistogram,
-            oriSizeIvChainCode, oriSizeIvChainCodeBolong,
-            oriSizeIvKodeBelok, oriSizeIvKodeBelokBolong,
-            oriSizeIvTulangBw, oriSizeIvTulangResult,
-            oriSizeIvHuruf;
 
     /**
      * Initializes the controller class.
@@ -124,22 +117,19 @@ public class MainPageController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        oriSizeIvOri = new double[] { ivMainOri.getFitWidth(), ivMainOri.getFitHeight() };
-        oriSizeIvGray = new double[] { ivMainGray.getFitWidth(), ivMainGray.getFitHeight() };
-        oriSizeIvGrayEq = new double[] { ivMainGrayEq.getFitWidth(), ivMainGrayEq.getFitHeight() };
-        oriSizeIvBw = new double[] { ivMainBw.getFitWidth(), ivMainBw.getFitHeight() };
-        oriSizeIvHistogram = new double[] { ivHistogram.getFitWidth(), ivHistogram.getFitHeight() };
-        oriSizeIvEqHistogram = new double[] { ivEqHistogram.getFitWidth(), ivEqHistogram.getFitHeight() };
-        oriSizeIvChainCode = new double[] { ivChainCode.getFitWidth(), ivChainCode.getFitHeight() };
-        oriSizeIvChainCodeBolong = new double[] { ivChainCodeBolong.getFitWidth(), ivChainCodeBolong.getFitHeight() };
-        oriSizeIvKodeBelok = new double[] { ivKodeBelok.getFitWidth(), ivKodeBelok.getFitHeight() };
-        oriSizeIvKodeBelokBolong = new double[] { ivKodeBelokBolong.getFitWidth(), ivKodeBelokBolong.getFitHeight() };
-        oriSizeIvTulangBw = new double[] { ivTulangBw.getFitWidth(), ivTulangBw.getFitHeight() };
-        oriSizeIvTulangResult = new double[] { ivTulangResult.getFitWidth(), ivTulangResult.getFitHeight() };
-        oriSizeIvHuruf = new double[] { ivHuruf.getFitWidth(), ivHuruf.getFitHeight() };
+        for (ImageView iv : new ImageView[] {
+                ivMainOri, ivMainGray, ivMainGrayEq, ivMainBw,
+                ivHistogram, ivEqHistogram,
+                ivChainCode, ivChainCodeBolong,
+                ivKodeBelok, ivKodeBelokBolong,
+                ivTulangBw, ivTulangResult,
+                ivHuruf }) {
+            iv.setUserData(new double[] { iv.getFitWidth(), iv.getFitHeight() });
+        }
         
         setTabAccess(false);
         setMap();
+        
         tab.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) -> {
             if (newValue == tabHistogram) {
                 openTabHistogram();
@@ -186,20 +176,6 @@ public class MainPageController implements Initializable {
             chainData = null;
             belokData = null;
             textTulangChain.setText("");
-            // reset
-            ivMainOri.setFitWidth(oriSizeIvOri[0]); ivMainOri.setFitHeight(oriSizeIvOri[1]);
-            ivMainGray.setFitWidth(oriSizeIvGray[0]); ivMainGray.setFitHeight(oriSizeIvGray[1]);
-            ivMainGrayEq.setFitWidth(oriSizeIvGrayEq[0]); ivMainGrayEq.setFitHeight(oriSizeIvGrayEq[1]);
-            ivMainBw.setFitWidth(oriSizeIvBw[0]); ivMainBw.setFitHeight(oriSizeIvBw[1]);
-            ivHistogram.setFitWidth(oriSizeIvHistogram[0]); ivHistogram.setFitHeight(oriSizeIvHistogram[1]);
-            ivEqHistogram.setFitWidth(oriSizeIvEqHistogram[0]); ivEqHistogram.setFitHeight(oriSizeIvEqHistogram[1]);
-            ivChainCode.setFitWidth(oriSizeIvChainCode[0]); ivChainCode.setFitHeight(oriSizeIvChainCode[1]);
-            ivChainCodeBolong.setFitWidth(oriSizeIvChainCodeBolong[0]); ivChainCodeBolong.setFitHeight(oriSizeIvChainCodeBolong[1]);
-            ivKodeBelok.setFitWidth(oriSizeIvKodeBelok[0]); ivKodeBelok.setFitHeight(oriSizeIvKodeBelok[1]);
-            ivKodeBelokBolong.setFitWidth(oriSizeIvKodeBelokBolong[0]); ivKodeBelokBolong.setFitHeight(oriSizeIvKodeBelokBolong[1]);
-            ivTulangBw.setFitWidth(oriSizeIvTulangBw[0]); ivTulangBw.setFitHeight(oriSizeIvTulangBw[1]);
-            ivTulangResult.setFitWidth(oriSizeIvTulangResult[0]); ivTulangResult.setFitHeight(oriSizeIvTulangResult[1]);
-            ivHuruf.setFitWidth(oriSizeIvHuruf[0]); ivHuruf.setFitHeight(oriSizeIvHuruf[1]);
             
             gambar = new Gambar(fileImageOri);
             
@@ -321,6 +297,7 @@ public class MainPageController implements Initializable {
         //setIvHuruf(buffTulang); // tidak perlu
     }
     
+    @Deprecated
     private void setTextView() {
         //setTextChainCode(); // tidak perlu
         //setTextKodeBelok(); // tidak perlu
@@ -328,6 +305,12 @@ public class MainPageController implements Initializable {
     }
     
     private void setIvImage(ImageView iv, BufferedImage image) {
+        // reset
+        double[] size = (double[]) iv.getUserData();
+        iv.setFitWidth(size[0]);
+        iv.setFitHeight(size[1]);
+        
+        // set
         if (image.getWidth() > iv.getFitWidth() || image.getHeight() > iv.getFitHeight()) {
             iv.setImage(SwingFXUtils.toFXImage(image, null));
         } else {

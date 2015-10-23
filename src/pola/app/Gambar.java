@@ -54,16 +54,12 @@ public class Gambar {
         
         histogram = new Histogram();
         
-        long timeStart = System.currentTimeMillis();
-
         read(image);
         equalize(0, 255);
         binarization();
         bolongin();
         
         updateBufferedImage();
-        
-        System.out.println("Gambar constructor done in " + (System.currentTimeMillis() - timeStart)/1000 + "s");
     }
     
     private void read(BufferedImage image) {
