@@ -53,14 +53,17 @@ public class Gambar {
         biTulang = new BufferedImage(width, height, TYPE_INT_RGB);
         
         histogram = new Histogram();
+        
+        long timeStart = System.currentTimeMillis();
 
         read(image);
         equalize(0, 255);
         binarization();
         bolongin();
-        tulangin();
         
         updateBufferedImage();
+        
+        System.out.println("Gambar constructor done in " + (System.currentTimeMillis() - timeStart)/1000 + "s");
     }
     
     private void read(BufferedImage image) {

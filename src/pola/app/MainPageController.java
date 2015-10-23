@@ -108,6 +108,13 @@ public class MainPageController implements Initializable {
     Gambar gambar;
     List<List<String>> chainData, belokData;
     HashMap<String, String> td = new HashMap<>();
+    
+    private double[] oriSizeIvOri, oriSizeIvGray, oriSizeIvGrayEq, oriSizeIvBw,
+            oriSizeIvHistogram, oriSizeIvEqHistogram,
+            oriSizeIvChainCode, oriSizeIvChainCodeBolong,
+            oriSizeIvKodeBelok, oriSizeIvKodeBelokBolong,
+            oriSizeIvTulangBw, oriSizeIvTulangResult,
+            oriSizeIvHuruf;
 
     /**
      * Initializes the controller class.
@@ -117,14 +124,35 @@ public class MainPageController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        oriSizeIvOri = new double[] { ivMainOri.getFitWidth(), ivMainOri.getFitHeight() };
+        oriSizeIvGray = new double[] { ivMainGray.getFitWidth(), ivMainGray.getFitHeight() };
+        oriSizeIvGrayEq = new double[] { ivMainGrayEq.getFitWidth(), ivMainGrayEq.getFitHeight() };
+        oriSizeIvBw = new double[] { ivMainBw.getFitWidth(), ivMainBw.getFitHeight() };
+        oriSizeIvHistogram = new double[] { ivHistogram.getFitWidth(), ivHistogram.getFitHeight() };
+        oriSizeIvEqHistogram = new double[] { ivEqHistogram.getFitWidth(), ivEqHistogram.getFitHeight() };
+        oriSizeIvChainCode = new double[] { ivChainCode.getFitWidth(), ivChainCode.getFitHeight() };
+        oriSizeIvChainCodeBolong = new double[] { ivChainCodeBolong.getFitWidth(), ivChainCodeBolong.getFitHeight() };
+        oriSizeIvKodeBelok = new double[] { ivKodeBelok.getFitWidth(), ivKodeBelok.getFitHeight() };
+        oriSizeIvKodeBelokBolong = new double[] { ivKodeBelokBolong.getFitWidth(), ivKodeBelokBolong.getFitHeight() };
+        oriSizeIvTulangBw = new double[] { ivTulangBw.getFitWidth(), ivTulangBw.getFitHeight() };
+        oriSizeIvTulangResult = new double[] { ivTulangResult.getFitWidth(), ivTulangResult.getFitHeight() };
+        oriSizeIvHuruf = new double[] { ivHuruf.getFitWidth(), ivHuruf.getFitHeight() };
+        
         setTabAccess(false);
         setMap();
         tab.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) -> {
             if (newValue == tabHistogram) {
-                createGraph();
+                openTabHistogram();
             } else if (newValue == tabEkualisasiHistogram) {
-                createEqGraph(0, 255);
+                openTabEkualisasiHistogram(0, 255);
+            } else if (newValue == tabChainCode) {
+                openTabChainCode();
+            } else if (newValue == tabKodeBelok) {
+                openTabKodeBelok();
+            } else if (newValue == tabTulang) {
+                openTabTulang();
+            } else if (newValue == tabHuruf) {
+                openTabHuruf();
             }
         });
     }
@@ -152,23 +180,117 @@ public class MainPageController implements Initializable {
         
         if (fileImageOri != null) {
             
+            // reset
             chartHistogram.getData().clear();
             chartEqHistogram.getData().clear();
+            chainData = null;
+            belokData = null;
+            textTulangChain.setText("");
+            // reset
+            ivMainOri.setFitWidth(oriSizeIvOri[0]); ivMainOri.setFitHeight(oriSizeIvOri[1]);
+            ivMainGray.setFitWidth(oriSizeIvGray[0]); ivMainGray.setFitHeight(oriSizeIvGray[1]);
+            ivMainGrayEq.setFitWidth(oriSizeIvGrayEq[0]); ivMainGrayEq.setFitHeight(oriSizeIvGrayEq[1]);
+            ivMainBw.setFitWidth(oriSizeIvBw[0]); ivMainBw.setFitHeight(oriSizeIvBw[1]);
+            ivHistogram.setFitWidth(oriSizeIvHistogram[0]); ivHistogram.setFitHeight(oriSizeIvHistogram[1]);
+            ivEqHistogram.setFitWidth(oriSizeIvEqHistogram[0]); ivEqHistogram.setFitHeight(oriSizeIvEqHistogram[1]);
+            ivChainCode.setFitWidth(oriSizeIvChainCode[0]); ivChainCode.setFitHeight(oriSizeIvChainCode[1]);
+            ivChainCodeBolong.setFitWidth(oriSizeIvChainCodeBolong[0]); ivChainCodeBolong.setFitHeight(oriSizeIvChainCodeBolong[1]);
+            ivKodeBelok.setFitWidth(oriSizeIvKodeBelok[0]); ivKodeBelok.setFitHeight(oriSizeIvKodeBelok[1]);
+            ivKodeBelokBolong.setFitWidth(oriSizeIvKodeBelokBolong[0]); ivKodeBelokBolong.setFitHeight(oriSizeIvKodeBelokBolong[1]);
+            ivTulangBw.setFitWidth(oriSizeIvTulangBw[0]); ivTulangBw.setFitHeight(oriSizeIvTulangBw[1]);
+            ivTulangResult.setFitWidth(oriSizeIvTulangResult[0]); ivTulangResult.setFitHeight(oriSizeIvTulangResult[1]);
+            ivHuruf.setFitWidth(oriSizeIvHuruf[0]); ivHuruf.setFitHeight(oriSizeIvHuruf[1]);
             
             gambar = new Gambar(fileImageOri);
             
             setBufferedImage();
-            
             setImageView();
-//            setIvMainOriImage(buffOri);
-//            setIvMainGrayImage(buffGray);
-
-            setTextView();
+            //setTextView(); // tidak perlu
             setTabAccess(true);
         } else {
-            setTabAccess(false);
+            // setTabAccess(false); // tidak perlu karena masih pakai gambar yang lama
             main.showAlert("Error", "File Chooser", "No Picture Selected !!!", Alert.AlertType.INFORMATION);
         }
+    }
+    
+    private void openTabHistogram() {
+        if (chartHistogram.getData().size() == 0) {
+            XYChart.Series seriesR = new XYChart.Series();
+            XYChart.Series seriesG = new XYChart.Series();
+            XYChart.Series seriesB = new XYChart.Series();
+            XYChart.Series seriesGray = new XYChart.Series();
+            
+            ObservableList dataR = seriesR.getData();
+            ObservableList dataG = seriesG.getData();
+            ObservableList dataB = seriesB.getData();
+            ObservableList dataGray = seriesGray.getData();
+            
+            for (int i = 0; i < 256; i++) {
+                dataR.add(new XYChart.Data(i, gambar.histogram.r[i]));
+                dataG.add(new XYChart.Data(i, gambar.histogram.g[i]));
+                dataB.add(new XYChart.Data(i, gambar.histogram.b[i]));
+                dataGray.add(new XYChart.Data(i, gambar.histogram.gray[i]));
+            }
+            chartHistogram.getData().add(seriesR);
+            chartHistogram.getData().add(seriesG);
+            chartHistogram.getData().add(seriesB);
+            chartHistogram.getData().add(seriesGray);
+            
+            seriesR.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(255, 0, 0, 1.0);");
+            seriesG.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 255, 0, 1.0);");
+            seriesB.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 255, 1.0);");
+            seriesGray.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(128, 128, 128, 1.0);");
+        }
+    }
+    
+    private void openTabEkualisasiHistogram(int from, int to) {
+        if (chartEqHistogram.getData().size() == 0) {
+            gambar.equalize(from, to);
+            gambar.updateBufferedImage();
+            setIvImage(ivEqHistogram, gambar.biEqualized);
+            
+            XYChart.Series seriesGray = new XYChart.Series();
+            XYChart.Series seriesEq = new XYChart.Series();
+            ObservableList dataGray = seriesGray.getData();
+            ObservableList dataEq = seriesEq.getData();
+            for (int i = 0; i < 256; i++) {
+                dataGray.add(new XYChart.Data(i, gambar.histogram.gray[i]));
+                dataEq.add(new XYChart.Data(i, gambar.histogram.equalized[i]));
+            }
+            chartEqHistogram.getData().add(seriesGray);
+            chartEqHistogram.getData().add(seriesEq);
+            seriesGray.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(255, 128, 128, 1.0);");
+            seriesEq.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 0, 1.0);");
+        }
+    }
+    
+    private void openTabChainCode() {
+        if (chainData == null) {
+            chainData = Operation.getOp().getChainCode(gambar.biBolong);
+            setTextChainCode();
+        }
+    }
+    
+    private void openTabKodeBelok() {
+        if (belokData == null) {
+            openTabChainCode();
+            belokData = Operation.getOp().getKodeBelok(chainData);
+            setTextKodeBelok();
+        }
+    }
+    
+    private void openTabTulang() {
+        if (textTulangChain.getText().length() == 0) {
+            gambar.tulangin();
+            gambar.updateBufferedImage();
+            setIvImage(ivTulangResult, gambar.biTulang);
+            setIvImage(ivHuruf, gambar.biTulang);
+            setTextTulangChain(Operation.getOp().getChainCodeTulang(gambar.biTulang));
+        }
+    }
+    
+    private void openTabHuruf() {
+        openTabTulang();
     }
     
     private void setBufferedImage() throws IOException {
@@ -176,34 +298,46 @@ public class MainPageController implements Initializable {
         buffGray = gambar.biGrayscale;
         buffGrayEq = gambar.biEqualized;
         buffBw = gambar.biBinary;
-        buffTulang = gambar.biTulang;
+        //buffTulang = gambar.biTulang; // tidak perlu
         buffBolong = gambar.biBolong;
-        chainData = Operation.getOp().getChainCode(buffBolong);
-        belokData = Operation.getOp().getKodeBelok(chainData);
+        //chainData = Operation.getOp().getChainCode(buffBolong); // tidak perlu
+        //belokData = Operation.getOp().getKodeBelok(chainData); // tidak perlu
     }
     
     private void setImageView() {
-        setIvMainOriImage(buffOri);
-        setIvMainGrayImage(buffGray);
-        setIvMainGrayEqImage(buffGrayEq);
-        setIvMainBwImage(buffBw);
-        setIvHistogram(buffOri);
-        setIvHistogramEq(buffGrayEq);
-        setIvChainCode(buffBw);
-        setIvChainCodeBolong(buffBolong);
-        setIvKodeBelok(buffBw);
-        setIvKodeBelokBolong(buffBolong);
-        setIvTulangBw(buffOri);
-        setIvTulangResult(buffTulang);
-        setIvHuruf(buffTulang);
+        setIvImage(ivMainOri, buffOri);
+        setIvImage(ivMainGray, buffGray);
+        setIvImage(ivMainGrayEq, buffGrayEq);
+        setIvImage(ivMainBw, buffBw);
+        setIvImage(ivHistogram, buffOri);
+        setIvImage(ivEqHistogram, buffGrayEq);
+        setIvImage(ivChainCode, buffBw);
+        setIvImage(ivChainCodeBolong, buffBolong);
+        setIvImage(ivKodeBelok, buffBw);
+        setIvImage(ivKodeBelokBolong, buffBolong);
+        setIvImage(ivTulangBw, buffOri);
+        
+        //setIvTulangResult(buffTulang); // tidak perlu
+        //setIvHuruf(buffTulang); // tidak perlu
     }
     
     private void setTextView() {
-        setTextChainCode();
-        setTextKodeBelok();
-        setTextTulangChain(Operation.getOp().getChainCodeTulang(buffTulang));
+        //setTextChainCode(); // tidak perlu
+        //setTextKodeBelok(); // tidak perlu
+        //setTextTulangChain(Operation.getOp().getChainCodeTulang(buffTulang)); // tidak perlu
     }
     
+    private void setIvImage(ImageView iv, BufferedImage image) {
+        if (image.getWidth() > iv.getFitWidth() || image.getHeight() > iv.getFitHeight()) {
+            iv.setImage(SwingFXUtils.toFXImage(image, null));
+        } else {
+            iv.setImage(SwingFXUtils.toFXImage(image, null));
+            iv.setFitHeight(image.getHeight());
+            iv.setFitWidth(image.getWidth());
+        }
+    }
+    
+    @Deprecated
     private void setIvMainOriImage(BufferedImage image) {
         if (image.getWidth() > ivMainOri.getFitWidth() || image.getHeight() > ivMainOri.getFitHeight()) {
             ivMainOri.setImage(SwingFXUtils.toFXImage(image, null));
@@ -214,6 +348,7 @@ public class MainPageController implements Initializable {
         }
     }
     
+    @Deprecated
     private void setIvMainGrayImage(BufferedImage image) {
         if (image.getWidth() > ivMainGray.getFitWidth() || image.getHeight() > ivMainGray.getFitHeight()) {
             ivMainGray.setImage(SwingFXUtils.toFXImage(image, null));
@@ -224,6 +359,7 @@ public class MainPageController implements Initializable {
         }
     }
     
+    @Deprecated
     private void setIvMainGrayEqImage(BufferedImage image) {
         if (image.getWidth() > ivMainGrayEq.getFitWidth() || image.getHeight() > ivMainGrayEq.getFitHeight()) {
             ivMainGrayEq.setImage(SwingFXUtils.toFXImage(image, null));
@@ -234,6 +370,7 @@ public class MainPageController implements Initializable {
         }
     }
     
+    @Deprecated
     private void setIvMainBwImage(BufferedImage image) {
         if (image.getWidth() > ivMainBw.getFitWidth() || image.getHeight() > ivMainBw.getFitHeight()) {
             ivMainBw.setImage(SwingFXUtils.toFXImage(image, null));
@@ -245,6 +382,7 @@ public class MainPageController implements Initializable {
     }
 //histogram
 
+    @Deprecated
     private void setIvHistogram(BufferedImage image) {
         if (image.getWidth() > ivHistogram.getFitWidth() || image.getHeight() > ivHistogram.getFitHeight()) {
             ivHistogram.setImage(SwingFXUtils.toFXImage(image, null));
@@ -255,6 +393,7 @@ public class MainPageController implements Initializable {
         }
     }
     
+    @Deprecated
     private void createGraph() {
         if (chartHistogram.getData().size() == 0) {
             XYChart.Series seriesR = new XYChart.Series();
@@ -286,6 +425,7 @@ public class MainPageController implements Initializable {
     }
 //ekualisasi histogram
 
+    @Deprecated
     private void setIvHistogramEq(BufferedImage image) {
         if (image.getWidth() > ivEqHistogram.getFitWidth() || image.getHeight() > ivEqHistogram.getFitHeight()) {
             ivEqHistogram.setImage(SwingFXUtils.toFXImage(image, null));
@@ -296,6 +436,7 @@ public class MainPageController implements Initializable {
         }
     }
     
+    @Deprecated
     private void createEqGraph(int from, int to) {
         if (chartEqHistogram.getData().size() == 0) {
             gambar.equalize(from, to);
@@ -323,11 +464,13 @@ public class MainPageController implements Initializable {
         int valTo = (int) Math.round(sliderEqHistogramTo.getValue());
         int from = valFrom <= valTo ? valFrom : valTo;
         int to = valFrom <= valTo ? valTo : valFrom;
+        
         chartEqHistogram.getData().clear();
-        createEqGraph(from, to);
+        openTabEkualisasiHistogram(from, to);
     }
 //chain code
 
+    @Deprecated
     private void setIvChainCode(BufferedImage image) {
         if (image.getWidth() > ivChainCode.getFitWidth() || image.getHeight() > ivChainCode.getFitHeight()) {
             ivChainCode.setImage(SwingFXUtils.toFXImage(image, null));
@@ -338,6 +481,7 @@ public class MainPageController implements Initializable {
         }
     }
     
+    @Deprecated
     private void setIvChainCodeBolong(BufferedImage image) {
         if (image.getWidth() > ivChainCodeBolong.getFitWidth() || image.getHeight() > ivChainCodeBolong.getFitHeight()) {
             ivChainCodeBolong.setImage(SwingFXUtils.toFXImage(image, null));
@@ -366,6 +510,7 @@ public class MainPageController implements Initializable {
     }
 //kode belok
 
+    @Deprecated
     private void setIvKodeBelok(BufferedImage image) {
         if (image.getWidth() > ivKodeBelok.getFitWidth() || image.getHeight() > ivKodeBelok.getFitHeight()) {
             ivKodeBelok.setImage(SwingFXUtils.toFXImage(image, null));
@@ -376,6 +521,7 @@ public class MainPageController implements Initializable {
         }
     }
     
+    @Deprecated
     private void setIvKodeBelokBolong(BufferedImage image) {
         if (image.getWidth() > ivKodeBelokBolong.getFitWidth() || image.getHeight() > ivKodeBelokBolong.getFitHeight()) {
             ivKodeBelokBolong.setImage(SwingFXUtils.toFXImage(image, null));
@@ -404,6 +550,7 @@ public class MainPageController implements Initializable {
     }
 //tulang
 
+    @Deprecated
     private void setIvTulangBw(BufferedImage image) {
         if (image.getWidth() > ivTulangBw.getFitWidth() || image.getHeight() > ivTulangBw.getFitHeight()) {
             ivTulangBw.setImage(SwingFXUtils.toFXImage(image, null));
@@ -414,6 +561,7 @@ public class MainPageController implements Initializable {
         }
     }
     
+    @Deprecated
     private void setIvTulangResult(BufferedImage image) {
         if (image.getWidth() > ivTulangResult.getFitWidth() || image.getHeight() > ivTulangResult.getFitHeight()) {
             ivTulangResult.setImage(SwingFXUtils.toFXImage(image, null));
@@ -441,6 +589,7 @@ public class MainPageController implements Initializable {
     }
 
     //huruf
+    @Deprecated
     private void setIvHuruf(BufferedImage image) {
         if (image.getWidth() > ivHuruf.getFitWidth() || image.getHeight() > ivHuruf.getFitHeight()) {
             ivHuruf.setImage(SwingFXUtils.toFXImage(image, null));
