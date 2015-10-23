@@ -152,17 +152,11 @@ public class MainPageController implements Initializable {
         
         if (fileImageOri != null) {
             
-            WritableRaster raster = buffOri.getRaster();
-            int[] x = raster.getPixels(0, 0, buffOri.getWidth(), buffOri.getHeight(), (int[]) null);
-            System.out.println(Arrays.toString(x));
-
             chartHistogram.getData().clear();
             chartEqHistogram.getData().clear();
             
             gambar = new Gambar(fileImageOri);
             
-            Gambar.toBufferedImage(gambar.original);
-            Gambar.toBufferedImage(gambar.grayscale);
             setBufferedImage();
             
             setImageView();
@@ -179,11 +173,11 @@ public class MainPageController implements Initializable {
     
     private void setBufferedImage() throws IOException {
         buffOri = ImageIO.read(fileImageOri);
-        buffGray = Operation.getOp().convertGray(buffOri);
-        buffGrayEq = Operation.getOp().equalizeImage(buffGray);
-        buffBw = Operation.getOp().convertBw(buffGray);
-        buffTulang = Operation.getOp().tulangin(buffBw);
-        buffBolong = Operation.getOp().bolongin(buffBw);
+        buffGray = gambar.biGrayscale;
+        buffGrayEq = gambar.biEqualized;
+        buffBw = gambar.biBinary;
+        buffTulang = gambar.biTulang;
+        buffBolong = gambar.biBolong;
         chainData = Operation.getOp().getChainCode(buffBolong);
         belokData = Operation.getOp().getKodeBelok(chainData);
     }
@@ -263,8 +257,6 @@ public class MainPageController implements Initializable {
     
     private void createGraph() {
         if (chartHistogram.getData().size() == 0) {
-            setIvHistogram(Gambar.toBufferedImage(gambar.original));
-            
             XYChart.Series seriesR = new XYChart.Series();
             XYChart.Series seriesG = new XYChart.Series();
             XYChart.Series seriesB = new XYChart.Series();
@@ -307,7 +299,8 @@ public class MainPageController implements Initializable {
     private void createEqGraph(int from, int to) {
         if (chartEqHistogram.getData().size() == 0) {
             gambar.equalize(from, to);
-            setIvHistogramEq(Gambar.toBufferedImage(gambar.equalized));
+            gambar.updateBufferedImage();
+//            setIvHistogramEq(gambar.biEqualized);
             
             XYChart.Series seriesGray = new XYChart.Series();
             XYChart.Series seriesEq = new XYChart.Series();

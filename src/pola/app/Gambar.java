@@ -5,6 +5,8 @@ import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.imageio.ImageIO;
 
 /**
@@ -15,12 +17,19 @@ public class Gambar {
 
     public final int width;
     public final int height;
-    public final int countColor;
+    public int countColor;
 
-    public final int[][][] original;
     public final int[][] grayscale;
     public final int[][] equalized;
     public final boolean[][] binary;
+    public final boolean[][] bolong;
+    public final boolean[][] tulang;
+    
+    public BufferedImage biGrayscale;
+    public BufferedImage biEqualized;
+    public BufferedImage biBinary;
+    public BufferedImage biBolong;
+    public BufferedImage biTulang;
 
     public final Histogram histogram;
 
@@ -31,13 +40,31 @@ public class Gambar {
         BufferedImage image = new BufferedImage(width, height, TYPE_INT_RGB); // convert to RGB
         image.getGraphics().drawImage(input, 0, 0, null);
 
-        original = new int[height][width][3];
         grayscale = new int[height][width];
         equalized = new int[height][width];
         binary = new boolean[height][width];
+        bolong = new boolean[height][width];
+        tulang = new boolean[height][width];
+        
+        biGrayscale = new BufferedImage(width, height, TYPE_INT_RGB);
+        biEqualized = new BufferedImage(width, height, TYPE_INT_RGB);
+        biBinary = new BufferedImage(width, height, TYPE_INT_RGB);
+        biBolong = new BufferedImage(width, height, TYPE_INT_RGB);
+        biTulang = new BufferedImage(width, height, TYPE_INT_RGB);
+        
         histogram = new Histogram();
 
-        int colors = 0;
+        read(image);
+        equalize(0, 255);
+        binarization();
+        bolongin();
+        tulangin();
+        
+        updateBufferedImage();
+    }
+    
+    private void read(BufferedImage image) {
+        countColor = 0;
         boolean[][][] flagColors = new boolean[256][256][256];
 
         // scanline
@@ -49,19 +76,15 @@ public class Gambar {
             r = pixels[i];
             g = pixels[i + 1];
             b = pixels[i + 2];
-            gray = (int) Math.round((r + g + b + 0.0) / 3);
-
-            // set pixels
-            original[y][x][0] = r;
-            original[y][x][1] = g;
-            original[y][x][2] = b;
-            grayscale[y][x] = gray;
 
             // set countColor
             if (!flagColors[r][g][b]) {
                 flagColors[r][g][b] = true;
-                colors += 1;
+                countColor += 1;
             }
+            
+            gray = (int) Math.round((r + g + b + 0.0) / 3);
+            grayscale[y][x] = gray;
 
             // set histogram
             histogram.r[r] += 1;
@@ -75,12 +98,9 @@ public class Gambar {
                 y += 1;
             }
         }
-
-        // set color count
-        countColor = colors;
     }
 
-    public void equalize(int from, int to) {
+    public final void equalize(int from, int to) {
         class Cdf {
 
             public int cumm;
@@ -131,11 +151,12 @@ public class Gambar {
         }
     }
 
-    private float otsu() {
+    private int otsu() {
         int total = width * height;
         float sum = 0, sumB = 0;
         float wB = 0, wF;
-        float varMax = 0, threshold = 0;
+        float varMax = 0;
+        int threshold = 0;
 
         for (int i = 0; i < 256; i++) {
             sum += i * histogram.gray[i];
@@ -164,19 +185,131 @@ public class Gambar {
         return threshold;
     }
 
-    public void binarization() {
-        double threshold = otsu();
+    public final void binarization() {
+        int threshold = otsu();
         binarization(threshold);
     }
 
-    public void binarization(double threshold) {
+    public void binarization(int threshold) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 binary[y][x] = grayscale[y][x] < threshold;
             }
         }
     }
+    
+    public final void bolongin() {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                bolong[y][x] = binary[y][x];
+                if (binary[y][x] && // if the pixel is black
+                        y > 0 && y < height - 1 && x > 0 && x < width - 1) {  // and not in boundary
+                    if (binary[y-1][x] && binary[y+1][x] && binary[y][x-1] && binary[y][x+1]) { // if all 4 neighbors is black
+                        bolong[y][x] = false;
+                    }
+                }
+            }
+        }
+    }
+    
+    public final void tulangin() {
+        for (int y = 0; y < height; y++) {
+            tulang[y] = Arrays.copyOf(binary[y], width);
+        }
+        
+        ArrayList<int[]> target;
+        boolean changed = true;
+        while (changed) {
+            changed = false;
+            target = new ArrayList<>();
+            
+            for (int step = 1; step <= 2; step++) {
+                for (int y = 1; y < height - 1; y++) {
+                    for (int x = 1; x < width - 1; x++) {
+                        if (tulang[y][x]) {
+                            int countBlackNeighbor = getCountBlackNeighbor(x, y);
+                            int wbTrans = getWBTrans(x, y);
+                            int pA = step == 1 ? 6 : 8;
+                            int pB = step == 1 ? 4 : 2;
+                            
+                            if ((countBlackNeighbor >= 2 && countBlackNeighbor <= 6) &&
+                                    wbTrans == 1 &&
+                                    !(getP(x, y, 2) && getP(x, y, 4) && getP(x, y, pA)) &&
+                                    !(getP(x, y, pB) && getP(x, y, 6) && getP(x, y, 8))) {
+                                target.add(new int[] { y, x });
+                                changed = true;
+                            }
+                        }
+                    }
+                }
+                
+                if (changed) {
+                    for (int[] point : target) {
+                        tulang[point[0]][point[1]] = false;
+                    }
+                }
+            }
+        }
+    }
+    
+    private boolean getP(int x, int y, int p) {
+        int newX = p >= 3 && p <= 5 ? x+1 : (p >= 7 && p <= 9 ? x-1 : x);
+        int newY = p >= 5 && p <= 7 ? y+1 : (p == 4 || p == 8 ? y : y-1);
+        return tulang[newY][newX];
+    }
+    
+    private int getCountBlackNeighbor(int x, int y) {
+        int result = 0;
+        for (int p = 2; p <= 9; p++) {
+            result += getP(x, y, p) ? 1 : 0;
+        }
+        return result;
+    }
+    
+    private int getWBTrans(int x, int y) {
+        int result = 0;
+        for (int p = 2; p <= 9; p++) {
+            if (p == 9) {
+                result += !getP(x, y, 9) && getP(x, y, 2) ? 1 : 0;
+            } else {
+                result += !getP(x, y, p) && getP(x, y, p+1) ? 1 : 0;
+            }
+        }
+        return result;
+    }
+    
+    public final void updateBufferedImage() {
+        int[] pixelsGrayscale = new int[width * height * 3];
+        int[] pixelsEqualized = new int[width * height * 3];
+        int[] pixelsBinary = new int[width * height * 3];
+        int[] pixelsBolong = new int[width * height * 3];
+        int[] pixelsTulang = new int[width * height * 3];
+        
+        int x = 0, y = 0;
+        for (int i = 0; i < pixelsGrayscale.length; i += 3) {
+            for (int j = 0; j < 3; j++) {
+                pixelsGrayscale[i+j] = grayscale[y][x];
+                pixelsEqualized[i+j] = equalized[y][x];
+                pixelsBinary[i+j] = binary[y][x] ? 0 : 255;
+                pixelsBolong[i+j] = bolong[y][x] ? 0 : 255;
+                pixelsTulang[i+j] = tulang[y][x] ? 0 : 255;
+            }
 
+            x += 1;
+            if (x == width) {
+                x = 0;
+                y += 1;
+            }
+        }
+        
+        biGrayscale.getRaster().setPixels(0, 0, width, height, pixelsGrayscale);
+        biEqualized.getRaster().setPixels(0, 0, width, height, pixelsEqualized);
+        biBinary.getRaster().setPixels(0, 0, width, height, pixelsBinary);
+        biBolong.getRaster().setPixels(0, 0, width, height, pixelsBolong);
+        biTulang.getRaster().setPixels(0, 0, width, height, pixelsTulang);
+    }
+
+    @Deprecated
     public static BufferedImage toBufferedImage(int[][][] image) {
         // from RGB
         int width = image[0].length, height = image.length;
@@ -200,6 +333,7 @@ public class Gambar {
         return result;
     }
 
+    @Deprecated
     public static BufferedImage toBufferedImage(int[][] image) {
         // from Grayscale
         int width = image[0].length, height = image.length;
@@ -223,6 +357,7 @@ public class Gambar {
         return result;
     }
 
+    @Deprecated
     public static BufferedImage toBufferedImage(boolean[][] image) {
         // from BW
         int width = image[0].length, height = image.length;
