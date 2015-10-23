@@ -104,7 +104,7 @@ public class MainPageController implements Initializable {
     Label textHuruf;
     //
     File fileImageOri;
-    BufferedImage buffOri, buffGray, buffGrayEq, buffBw, buffTulang, buffBolong;
+    // BufferedImage buffOri, buffGray, buffGrayEq, buffBw, buffTulang, buffBolong; // tidak perlu
     Gambar gambar;
     List<List<String>> chainData, belokData;
     HashMap<String, String> td = new HashMap<>();
@@ -166,7 +166,7 @@ public class MainPageController implements Initializable {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG"), new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG"));
         fileImageOri = new FileChooser().showOpenDialog(main.getPrimaryStage());
-        buffOri = ImageIO.read(fileImageOri);
+        // buffOri = ImageIO.read(fileImageOri); // tidak perlu
         
         if (fileImageOri != null) {
             
@@ -269,32 +269,30 @@ public class MainPageController implements Initializable {
         openTabTulang();
     }
     
+    @Deprecated
     private void setBufferedImage() throws IOException {
-        buffOri = ImageIO.read(fileImageOri);
-        buffGray = gambar.biGrayscale;
-        buffGrayEq = gambar.biEqualized;
-        buffBw = gambar.biBinary;
+        // buffOri = ImageIO.read(fileImageOri); // tak pakai buff lagi
+        // buffGray = gambar.biGrayscale; // tak pakai buff lagi
+        // buffGrayEq = gambar.biEqualized; // tak pakai buff lagi
+        // buffBw = gambar.biBinary; // tak pakai buff lagi
         //buffTulang = gambar.biTulang; // tidak perlu
-        buffBolong = gambar.biBolong;
+        // buffBolong = gambar.biBolong; // tak pakai buff lagi
         //chainData = Operation.getOp().getChainCode(buffBolong); // tidak perlu
         //belokData = Operation.getOp().getKodeBelok(chainData); // tidak perlu
     }
     
     private void setImageView() {
-        setIvImage(ivMainOri, buffOri);
-        setIvImage(ivMainGray, buffGray);
-        setIvImage(ivMainGrayEq, buffGrayEq);
-        setIvImage(ivMainBw, buffBw);
-        setIvImage(ivHistogram, buffOri);
-        setIvImage(ivEqHistogram, buffGrayEq);
-        setIvImage(ivChainCode, buffBw);
-        setIvImage(ivChainCodeBolong, buffBolong);
-        setIvImage(ivKodeBelok, buffBw);
-        setIvImage(ivKodeBelokBolong, buffBolong);
-        setIvImage(ivTulangBw, buffOri);
-        
-        //setIvTulangResult(buffTulang); // tidak perlu
-        //setIvHuruf(buffTulang); // tidak perlu
+        setIvImage(ivMainOri, gambar.biOriginal);
+        setIvImage(ivMainGray, gambar.biGrayscale);
+        setIvImage(ivMainGrayEq, gambar.biEqualized);
+        setIvImage(ivMainBw, gambar.biBinary);
+        setIvImage(ivHistogram, gambar.biOriginal);
+        setIvImage(ivEqHistogram, gambar.biEqualized);
+        setIvImage(ivChainCode, gambar.biBinary);
+        setIvImage(ivChainCodeBolong, gambar.biBolong);
+        setIvImage(ivKodeBelok, gambar.biBinary);
+        setIvImage(ivKodeBelokBolong, gambar.biBolong);
+        setIvImage(ivTulangBw, gambar.biOriginal);
     }
     
     @Deprecated

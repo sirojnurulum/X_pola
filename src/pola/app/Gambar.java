@@ -25,6 +25,7 @@ public class Gambar {
     public final boolean[][] bolong;
     public final boolean[][] tulang;
     
+    public BufferedImage biOriginal;
     public BufferedImage biGrayscale;
     public BufferedImage biEqualized;
     public BufferedImage biBinary;
@@ -46,6 +47,7 @@ public class Gambar {
         bolong = new boolean[height][width];
         tulang = new boolean[height][width];
         
+        biOriginal = image;
         biGrayscale = new BufferedImage(width, height, TYPE_INT_RGB);
         biEqualized = new BufferedImage(width, height, TYPE_INT_RGB);
         biBinary = new BufferedImage(width, height, TYPE_INT_RGB);
