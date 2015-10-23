@@ -29,7 +29,6 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
-import javax.imageio.ImageIO;
 import pola.FXMain;
 
 /**
@@ -102,7 +101,6 @@ public class MainPageController implements Initializable {
     Label textHuruf;
     //
     File fileImageOri;
-    // BufferedImage buffOri, buffGray, buffGrayEq, buffBw, buffTulang, buffBolong; // tidak perlu
     Gambar gambar;
     List<List<String>> chainData, belokData;
     HashMap<String, String> td = new HashMap<>();
@@ -164,10 +162,8 @@ public class MainPageController implements Initializable {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG"), new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG"));
         fileImageOri = new FileChooser().showOpenDialog(main.getPrimaryStage());
-        // buffOri = ImageIO.read(fileImageOri); // tidak perlu
         
         if (fileImageOri != null) {
-
             // reset
             chartHistogram.getData().clear();
             chartEqHistogram.getData().clear();
@@ -177,12 +173,12 @@ public class MainPageController implements Initializable {
 
             gambar = new Gambar(fileImageOri);
 
-            setBufferedImage();
             setImageView();
-            //setTextView(); // tidak perlu
             setTabAccess(true);
         } else {
-            // setTabAccess(false); // tidak perlu karena masih pakai gambar yang lama
+            if (gambar == null) {
+                setTabAccess(false);
+            }
             main.showAlert("Error", "File Chooser", "No Picture Selected !!!", Alert.AlertType.INFORMATION);
         }
     }
@@ -267,6 +263,17 @@ public class MainPageController implements Initializable {
         openTabTulang();
     }
     
+    @FXML
+    public void sliderListener() {
+        int valFrom = (int) Math.round(sliderEqHistogramFrom.getValue());
+        int valTo = (int) Math.round(sliderEqHistogramTo.getValue());
+        int from = valFrom <= valTo ? valFrom : valTo;
+        int to = valFrom <= valTo ? valTo : valFrom;
+        
+        chartEqHistogram.getData().clear();
+        openTabEkualisasiHistogram(from, to);
+    }
+    
     private void setImageView() {
         setIvImage(ivMainOri, gambar.biOriginal);
         setIvImage(ivMainGray, gambar.biGrayscale);
@@ -279,17 +286,6 @@ public class MainPageController implements Initializable {
         setIvImage(ivKodeBelok, gambar.biBinary);
         setIvImage(ivKodeBelokBolong, gambar.biBolong);
         setIvImage(ivTulangBw, gambar.biOriginal);
-    }
-    
-    @FXML
-    public void sliderListener() {
-        int valFrom = (int) Math.round(sliderEqHistogramFrom.getValue());
-        int valTo = (int) Math.round(sliderEqHistogramTo.getValue());
-        int from = valFrom <= valTo ? valFrom : valTo;
-        int to = valFrom <= valTo ? valTo : valFrom;
-        
-        chartEqHistogram.getData().clear();
-        openTabEkualisasiHistogram(from, to);
     }
 
     private void setIvImage(ImageView iv, BufferedImage image) {
