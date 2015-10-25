@@ -188,6 +188,7 @@ public class Gambar {
 
     public final void binarization() {
         int threshold = otsu();
+        threshold = 128; // otsu broken, temporarily set to 128
         binarization(threshold);
     }
 
