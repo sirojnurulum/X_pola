@@ -255,7 +255,6 @@ public class MainPageController implements Initializable {
             textKodeBelok.setText(Operation.getOp().createTextChainCodeKodeBelok(belokData));
         }
     }
-//here
 
     private void openTabTulang() {
         if (chainTulangData == null) {
@@ -267,6 +266,9 @@ public class MainPageController implements Initializable {
             cabangData = data.get(0);
             data.remove(0);
             chainTulangData = data;
+            //here
+            //temp comment
+            
 //            textTulangChain.setText("");
 //            textHuruf.setText(huruf);
         }
