@@ -266,12 +266,7 @@ public class MainPageController implements Initializable {
             cabangData = data.get(0);
             data.remove(0);
             chainTulangData = Operation.getOp().getKodeBelok(data);
-            //
-            System.out.println(Operation.getOp().createTextCabang(cabangData));
-            System.out.println("--");
-            System.out.println(Operation.getOp().createTextChainCodeTulang(chainTulangData));
-            //
-            textTulangChain.setText(Operation.getOp().createTextCabang(cabangData) + "\n\n" + Operation.getOp().createTextChainCodeTulang(chainTulangData));
+            textTulangChain.setText(Operation.getOp().createTextCabang(cabangData) + "\n\nChain Code : \n" + Operation.getOp().createTextChainCodeTulang(chainTulangData));
 //            textHuruf.setText(huruf);
         }
     }
