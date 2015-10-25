@@ -68,6 +68,42 @@ public class Operation {
             try {
                 if (first) {
                     first = false;
+//                    if (tmp.getRGB(current.x + 1, current.y) == -16777216) {
+//                        data.add("0");
+//                        current.setXY(current.x + 1, current.y);
+//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                    } else if (tmp.getRGB(current.x + 1, current.y + 1) == -16777216) {
+//                        data.add("1");
+//                        current.setXY(current.x + 1, current.y + 1);
+//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                    } else if (tmp.getRGB(current.x, current.y + 1) == -16777216) {
+//                        data.add("2");
+//                        current.setXY(current.x, current.y + 1);
+//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                    } else if (tmp.getRGB(current.x - 1, current.y + 1) == -16777216) {
+//                        data.add("3");
+//                        current.setXY(current.x - 1, current.y + 1);
+//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                    } else if (tmp.getRGB(current.x - 1, current.y) == -16777216) {
+//                        data.add("4");
+//                        current.setXY(current.x - 1, current.y);
+//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                    } else if (tmp.getRGB(current.x - 1, current.y - 1) == -16777216) {
+//                        data.add("5");
+//                        current.setXY(current.x - 1, current.y - 1);
+//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                    } else if (tmp.getRGB(current.x, current.y - 1) == -16777216) {
+//                        data.add("6");
+//                        current.setXY(current.x, current.y - 1);
+//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                    } else if (tmp.getRGB(current.x + 1, current.y - 1) == -16777216) {
+//                        data.add("7");
+//                        current.setXY(current.x + 1, current.y - 1);
+//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                    } else {
+//                        run = false;
+//                    }
+                    //====
                     if (tmp.getRGB(current.x + 1, current.y) == -16777216) {
                         data.add("0");
                         current.setXY(current.x + 1, current.y);
@@ -107,6 +143,42 @@ public class Operation {
                     if (current.x == start.x && current.y == start.y) {
                         run = false;
                     } else {
+//                        if (tmp.getRGB(current.x + 1, current.y) == -16777216) {
+//                            data.add("0");
+//                            current.setXY(current.x + 1, current.y);
+//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                        } else if (tmp.getRGB(current.x + 1, current.y + 1) == -16777216) {
+//                            data.add("1");
+//                            current.setXY(current.x + 1, current.y + 1);
+//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                        } else if (tmp.getRGB(current.x, current.y + 1) == -16777216) {
+//                            data.add("2");
+//                            current.setXY(current.x, current.y + 1);
+//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                        } else if (tmp.getRGB(current.x - 1, current.y + 1) == -16777216) {
+//                            data.add("3");
+//                            current.setXY(current.x - 1, current.y + 1);
+//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                        } else if (tmp.getRGB(current.x - 1, current.y) == -16777216) {
+//                            data.add("4");
+//                            current.setXY(current.x - 1, current.y);
+//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                        } else if (tmp.getRGB(current.x - 1, current.y - 1) == -16777216) {
+//                            data.add("5");
+//                            current.setXY(current.x - 1, current.y - 1);
+//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                        } else if (tmp.getRGB(current.x, current.y - 1) == -16777216) {
+//                            data.add("6");
+//                            current.setXY(current.x, current.y - 1);
+//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                        } else if (tmp.getRGB(current.x + 1, current.y - 1) == -16777216) {
+//                            data.add("7");
+//                            current.setXY(current.x + 1, current.y - 1);
+//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                        } else {
+//                            run = false;
+//                        }
+                        //
                         if (tmp.getRGB(current.x + 1, current.y) == -16777216) {
                             data.add("0");
                             current.setXY(current.x + 1, current.y);
@@ -445,10 +517,10 @@ public class Operation {
             for (int j = 0; j < tmp.getHeight(); j++) {
                 if (tmp.getRGB(i, j) == -16777216) {
                     start.setXY(i, j);
-                    if (getCountTatangga(tmp, start) < 2) {
-//                    System.out.println("->x" + i + "->h" + j);
-                    object.add(createChainCodeTulang(start, tmp));
-                    }
+//                    if (getCountTatangga(tmp, start) < 2) {
+                        System.out.println("X:" + i + " Y:" + j);
+                        object.add(createChainCodeTulang(start, tmp));
+//                    }
                 }
             }
         }
@@ -461,6 +533,42 @@ public class Operation {
         boolean run = true;
         while (run) {
             try {
+//                if (tulang.getRGB(current.x + 1, current.y) == -16777216) {
+//                    data.add("0");
+//                    current.setXY(current.x + 1, current.y);
+//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                } else if (tulang.getRGB(current.x + 1, current.y + 1) == -16777216) {
+//                    data.add("1");
+//                    current.setXY(current.x + 1, current.y + 1);
+//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                } else if (tulang.getRGB(current.x, current.y + 1) == -16777216) {
+//                    data.add("2");
+//                    current.setXY(current.x, current.y + 1);
+//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                } else if (tulang.getRGB(current.x - 1, current.y + 1) == -16777216) {
+//                    data.add("3");
+//                    current.setXY(current.x - 1, current.y + 1);
+//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                } else if (tulang.getRGB(current.x - 1, current.y) == -16777216) {
+//                    data.add("4");
+//                    current.setXY(current.x - 1, current.y);
+//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                } else if (tulang.getRGB(current.x - 1, current.y - 1) == -16777216) {
+//                    data.add("5");
+//                    current.setXY(current.x - 1, current.y - 1);
+//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                } else if (tulang.getRGB(current.x, current.y - 1) == -16777216) {
+//                    data.add("6");
+//                    current.setXY(current.x, current.y - 1);
+//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                } else if (tulang.getRGB(current.x + 1, current.y - 1) == -16777216) {
+//                    data.add("7");
+//                    current.setXY(current.x + 1, current.y - 1);
+//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+//                } else {
+//                    run = false;
+//                }
+                //===
                 if (tulang.getRGB(current.x + 1, current.y) == -16777216) {
                     data.add("0");
                     current.setXY(current.x + 1, current.y);
