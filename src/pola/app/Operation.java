@@ -518,8 +518,8 @@ public class Operation {
                 if (tmp.getRGB(i, j) == -16777216) {
                     start.setXY(i, j);
 //                    if (getCountTatangga(tmp, start) < 2) {
-                        System.out.println("X:" + i + " Y:" + j);
-                        object.add(createChainCodeTulang(start, tmp));
+                    System.out.println("X:" + i + " Y:" + j);
+                    object.add(createChainCodeTulang(start, tmp));
 //                    }
                 }
             }
