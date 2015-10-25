@@ -542,7 +542,6 @@ public class Operation {
             }
             q++;
         }
-        System.out.println("Op : " + chain);
         return chain;
     }
 
