@@ -176,7 +176,7 @@ public class MainPageController implements Initializable {
             chartEqHistogram.getData().clear();
             chainData = null;
             belokData = null;
-            textTulangChain.setText("");
+            chainTulangData = null;
 
             gambar = new Gambar(fileImageOri);
 
