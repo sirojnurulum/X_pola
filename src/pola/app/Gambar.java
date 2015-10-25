@@ -24,7 +24,7 @@ public class Gambar {
     public final boolean[][] binary;
     public final boolean[][] bolong;
     public final boolean[][] tulang;
-    
+
     public BufferedImage biOriginal;
     public BufferedImage biGrayscale;
     public BufferedImage biEqualized;
@@ -46,30 +46,30 @@ public class Gambar {
         binary = new boolean[height][width];
         bolong = new boolean[height][width];
         tulang = new boolean[height][width];
-        
+
         biOriginal = image;
         biGrayscale = new BufferedImage(width, height, TYPE_INT_RGB);
         biEqualized = new BufferedImage(width, height, TYPE_INT_RGB);
         biBinary = new BufferedImage(width, height, TYPE_INT_RGB);
         biBolong = new BufferedImage(width, height, TYPE_INT_RGB);
         biTulang = new BufferedImage(width, height, TYPE_INT_RGB);
-        
+
         histogram = new Histogram();
-        
-        read(image);
+
+        read();
         equalize(0, 255);
         binarization();
         bolongin();
-        
+
         updateBufferedImage();
     }
-    
-    private void read(BufferedImage image) {
+
+    private void read() {
         countColor = 0;
         boolean[][][] flagColors = new boolean[256][256][256];
 
         // scanline
-        WritableRaster raster = image.getRaster();
+        WritableRaster raster = biOriginal.getRaster();
         int[] pixels = raster.getPixels(0, 0, width, height, (int[]) null);
         int x = 0, y = 0;
         int r, g, b, gray;
@@ -83,7 +83,7 @@ public class Gambar {
                 flagColors[r][g][b] = true;
                 countColor += 1;
             }
-            
+
             gray = (int) Math.round((r + g + b + 0.0) / 3);
             grayscale[y][x] = gray;
 
@@ -126,7 +126,7 @@ public class Gambar {
             h = (int) Math.round(255.0 * (cumm - fromCdf) / (countPixel - fromCdf));
             cdf[i] = new Cdf(cumm, h);
         }
-        
+
         // reset
         for (int i = 0; i < 256; i++) {
             histogram.equalized[i] = 0;
@@ -198,32 +198,32 @@ public class Gambar {
             }
         }
     }
-    
+
     public final void bolongin() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 bolong[y][x] = binary[y][x];
                 if (binary[y][x] && // if the pixel is black
                         y > 0 && y < height - 1 && x > 0 && x < width - 1) {  // and not in boundary
-                    if (binary[y-1][x] && binary[y+1][x] && binary[y][x-1] && binary[y][x+1]) { // if all 4 neighbors is black
+                    if (binary[y - 1][x] && binary[y + 1][x] && binary[y][x - 1] && binary[y][x + 1]) { // if all 4 neighbors is black
                         bolong[y][x] = false;
                     }
                 }
             }
         }
     }
-    
+
     public final void tulangin() {
         for (int y = 0; y < height; y++) {
             tulang[y] = Arrays.copyOf(binary[y], width);
         }
-        
+
         ArrayList<int[]> target;
         boolean changed = true;
         while (changed) {
             changed = false;
             target = new ArrayList<>();
-            
+
             for (int step = 1; step <= 2; step++) {
                 for (int y = 1; y < height - 1; y++) {
                     for (int x = 1; x < width - 1; x++) {
@@ -232,18 +232,18 @@ public class Gambar {
                             int wbTrans = getWBTrans(x, y);
                             int pA = step == 1 ? 6 : 8;
                             int pB = step == 1 ? 4 : 2;
-                            
-                            if ((countBlackNeighbor >= 2 && countBlackNeighbor <= 6) &&
-                                    wbTrans == 1 &&
-                                    !(getP(x, y, 2) && getP(x, y, 4) && getP(x, y, pA)) &&
-                                    !(getP(x, y, pB) && getP(x, y, 6) && getP(x, y, 8))) {
-                                target.add(new int[] { y, x });
+
+                            if ((countBlackNeighbor >= 2 && countBlackNeighbor <= 6)
+                                    && wbTrans == 1
+                                    && !(getP(x, y, 2) && getP(x, y, 4) && getP(x, y, pA))
+                                    && !(getP(x, y, pB) && getP(x, y, 6) && getP(x, y, 8))) {
+                                target.add(new int[]{y, x});
                                 changed = true;
                             }
                         }
                     }
                 }
-                
+
                 if (changed) {
                     for (int[] point : target) {
                         tulang[point[0]][point[1]] = false;
@@ -251,35 +251,35 @@ public class Gambar {
                 }
             }
         }
-        
+
         // remove 'tangga'
         for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
                 if (tulang[y][x]) {
-                    if ((getP(x, y, 2) && getP(x, y, 3) && getP(x, y, 8)) ||
-                            (getP(x, y, 3) && getP(x, y, 4) && getP(x, y, 6)) ||
-                            (getP(x, y, 4) && getP(x, y, 5) && getP(x, y, 2)) ||
-                            (getP(x, y, 5) && getP(x, y, 6) && getP(x, y, 8)) ||
-                            (getP(x, y, 6) && getP(x, y, 7) && getP(x, y, 4)) ||
-                            (getP(x, y, 7) && getP(x, y, 8) && getP(x, y, 2)) ||
-                            (getP(x, y, 8) && getP(x, y, 9) && getP(x, y, 6)) ||
-                            (getP(x, y, 9) && getP(x, y, 2) && getP(x, y, 4))) {
+                    if ((getP(x, y, 2) && getP(x, y, 3) && getP(x, y, 8))
+                            || (getP(x, y, 3) && getP(x, y, 4) && getP(x, y, 6))
+                            || (getP(x, y, 4) && getP(x, y, 5) && getP(x, y, 2))
+                            || (getP(x, y, 5) && getP(x, y, 6) && getP(x, y, 8))
+                            || (getP(x, y, 6) && getP(x, y, 7) && getP(x, y, 4))
+                            || (getP(x, y, 7) && getP(x, y, 8) && getP(x, y, 2))
+                            || (getP(x, y, 8) && getP(x, y, 9) && getP(x, y, 6))
+                            || (getP(x, y, 9) && getP(x, y, 2) && getP(x, y, 4))) {
                         tulang[y][x] = false;
                     }
                 }
             }
         }
-        
+
         // remove 'siku'
         for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
                 if (tulang[y][x]) {
                     int countBlackNeighbor = getCountBlackNeighbor(x, y);
                     if (countBlackNeighbor == 2) {
-                        if ((getP(x, y, 2) && (getP(x, y, 4))) ||
-                                (getP(x, y, 4) && (getP(x, y, 6))) ||
-                                (getP(x, y, 6) && (getP(x, y, 8))) ||
-                                (getP(x, y, 8) && (getP(x, y, 2)))) {
+                        if ((getP(x, y, 2) && (getP(x, y, 4)))
+                                || (getP(x, y, 4) && (getP(x, y, 6)))
+                                || (getP(x, y, 6) && (getP(x, y, 8)))
+                                || (getP(x, y, 8) && (getP(x, y, 2)))) {
                             tulang[y][x] = false;
                         }
                     }
@@ -287,13 +287,13 @@ public class Gambar {
             }
         }
     }
-    
+
     private boolean getP(int x, int y, int p) {
-        int newX = p >= 3 && p <= 5 ? x+1 : (p >= 7 && p <= 9 ? x-1 : x);
-        int newY = p >= 5 && p <= 7 ? y+1 : (p == 4 || p == 8 ? y : y-1);
+        int newX = p >= 3 && p <= 5 ? x + 1 : (p >= 7 && p <= 9 ? x - 1 : x);
+        int newY = p >= 5 && p <= 7 ? y + 1 : (p == 4 || p == 8 ? y : y - 1);
         return tulang[newY][newX];
     }
-    
+
     private int getCountBlackNeighbor(int x, int y) {
         int result = 0;
         for (int p = 2; p <= 9; p++) {
@@ -301,34 +301,34 @@ public class Gambar {
         }
         return result;
     }
-    
+
     private int getWBTrans(int x, int y) {
         int result = 0;
         for (int p = 2; p <= 9; p++) {
             if (p == 9) {
                 result += !getP(x, y, 9) && getP(x, y, 2) ? 1 : 0;
             } else {
-                result += !getP(x, y, p) && getP(x, y, p+1) ? 1 : 0;
+                result += !getP(x, y, p) && getP(x, y, p + 1) ? 1 : 0;
             }
         }
         return result;
     }
-    
+
     public final void updateBufferedImage() {
         int[] pixelsGrayscale = new int[width * height * 3];
         int[] pixelsEqualized = new int[width * height * 3];
         int[] pixelsBinary = new int[width * height * 3];
         int[] pixelsBolong = new int[width * height * 3];
         int[] pixelsTulang = new int[width * height * 3];
-        
+
         int x = 0, y = 0;
         for (int i = 0; i < pixelsGrayscale.length; i += 3) {
             for (int j = 0; j < 3; j++) {
-                pixelsGrayscale[i+j] = grayscale[y][x];
-                pixelsEqualized[i+j] = equalized[y][x];
-                pixelsBinary[i+j] = binary[y][x] ? 0 : 255;
-                pixelsBolong[i+j] = bolong[y][x] ? 0 : 255;
-                pixelsTulang[i+j] = tulang[y][x] ? 0 : 255;
+                pixelsGrayscale[i + j] = grayscale[y][x];
+                pixelsEqualized[i + j] = equalized[y][x];
+                pixelsBinary[i + j] = binary[y][x] ? 0 : 255;
+                pixelsBolong[i + j] = bolong[y][x] ? 0 : 255;
+                pixelsTulang[i + j] = tulang[y][x] ? 0 : 255;
             }
 
             x += 1;
@@ -337,83 +337,11 @@ public class Gambar {
                 y += 1;
             }
         }
-        
+
         biGrayscale.getRaster().setPixels(0, 0, width, height, pixelsGrayscale);
         biEqualized.getRaster().setPixels(0, 0, width, height, pixelsEqualized);
         biBinary.getRaster().setPixels(0, 0, width, height, pixelsBinary);
         biBolong.getRaster().setPixels(0, 0, width, height, pixelsBolong);
         biTulang.getRaster().setPixels(0, 0, width, height, pixelsTulang);
-    }
-
-    @Deprecated
-    public static BufferedImage toBufferedImage(int[][][] image) {
-        // from RGB
-        int width = image[0].length, height = image.length;
-        int[] pixels = new int[width * height * 3];
-        int x = 0, y = 0;
-        for (int i = 0; i < pixels.length; i += 3) {
-            pixels[i] = image[y][x][0];
-            pixels[i + 1] = image[y][x][1];
-            pixels[i + 2] = image[y][x][2];
-
-            x += 1;
-            if (x == width) {
-                x = 0;
-                y += 1;
-            }
-        }
-
-        BufferedImage result = new BufferedImage(width, height, TYPE_INT_RGB);
-        WritableRaster raster = result.getRaster();
-        raster.setPixels(0, 0, width, height, pixels);
-        return result;
-    }
-
-    @Deprecated
-    public static BufferedImage toBufferedImage(int[][] image) {
-        // from Grayscale
-        int width = image[0].length, height = image.length;
-        int[] pixels = new int[width * height * 3];
-        int x = 0, y = 0;
-        for (int i = 0; i < pixels.length; i += 3) {
-            pixels[i] = image[y][x];
-            pixels[i + 1] = image[y][x];
-            pixels[i + 2] = image[y][x];
-
-            x += 1;
-            if (x == width) {
-                x = 0;
-                y += 1;
-            }
-        }
-
-        BufferedImage result = new BufferedImage(width, height, TYPE_INT_RGB);
-        WritableRaster raster = result.getRaster();
-        raster.setPixels(0, 0, width, height, pixels);
-        return result;
-    }
-
-    @Deprecated
-    public static BufferedImage toBufferedImage(boolean[][] image) {
-        // from BW
-        int width = image[0].length, height = image.length;
-        int[] pixels = new int[width * height * 3];
-        int x = 0, y = 0;
-        for (int i = 0; i < pixels.length; i += 3) {
-            pixels[i] = image[y][x] ? 0 : 255;
-            pixels[i + 1] = image[y][x] ? 0 : 255;
-            pixels[i + 2] = image[y][x] ? 0 : 255;
-
-            x += 1;
-            if (x == width) {
-                x = 0;
-                y += 1;
-            }
-        }
-
-        BufferedImage result = new BufferedImage(width, height, TYPE_INT_RGB);
-        WritableRaster raster = result.getRaster();
-        raster.setPixels(0, 0, width, height, pixels);
-        return result;
     }
 }

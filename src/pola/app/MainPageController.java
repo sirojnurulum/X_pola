@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.beans.value.ObservableValue;
@@ -102,7 +101,8 @@ public class MainPageController implements Initializable {
     //
     File fileImageOri;
     Gambar gambar;
-    List<List<String>> chainData, belokData;
+    List<List<String>> chainData, belokData, chainTulangData;
+    List<String> cabangData;
     HashMap<String, String> td = new HashMap<>();
 
     /**
@@ -114,11 +114,18 @@ public class MainPageController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         for (ImageView iv : new ImageView[]{
-            ivMainOri, ivMainGray, ivMainGrayEq, ivMainBw,
-            ivHistogram, ivEqHistogram,
-            ivChainCode, ivChainCodeBolong,
-            ivKodeBelok, ivKodeBelokBolong,
-            ivTulangBw, ivTulangResult,
+            ivMainOri,
+            ivMainGray,
+            ivMainGrayEq,
+            ivMainBw,
+            ivHistogram,
+            ivEqHistogram,
+            ivChainCode,
+            ivChainCodeBolong,
+            ivKodeBelok,
+            ivKodeBelokBolong,
+            ivTulangBw,
+            ivTulangResult,
             ivHuruf}) {
             iv.setUserData(new double[]{iv.getFitWidth(), iv.getFitHeight()});
         }
@@ -162,7 +169,7 @@ public class MainPageController implements Initializable {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG"), new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG"));
         fileImageOri = new FileChooser().showOpenDialog(main.getPrimaryStage());
-        
+
         if (fileImageOri != null) {
             // reset
             chartHistogram.getData().clear();
@@ -237,7 +244,7 @@ public class MainPageController implements Initializable {
     private void openTabChainCode() {
         if (chainData == null) {
             chainData = Operation.getOp().getChainCode(gambar.biBolong);
-            setTextChainCode();
+            textChainCode.setText(Operation.getOp().createTextChainCodeKodeBelok(chainData));
         }
     }
 
@@ -245,35 +252,41 @@ public class MainPageController implements Initializable {
         if (belokData == null) {
             openTabChainCode();
             belokData = Operation.getOp().getKodeBelok(chainData);
-            setTextKodeBelok();
+            textKodeBelok.setText(Operation.getOp().createTextChainCodeKodeBelok(belokData));
         }
     }
+//here
 
     private void openTabTulang() {
-        if (textTulangChain.getText().length() == 0) {
+        if (chainTulangData == null) {
             gambar.tulangin();
             gambar.updateBufferedImage();
             setIvImage(ivTulangResult, gambar.biTulang);
             setIvImage(ivHuruf, gambar.biTulang);
-            setTextTulangChain(Operation.getOp().getChainCodeTulang(gambar.biTulang));
+            List<List<String>> data = Operation.getOp().getChainCodeTulang(gambar.biTulang);
+            cabangData = data.get(0);
+            data.remove(0);
+            chainTulangData = data;
+//            textTulangChain.setText("");
+//            textHuruf.setText(huruf);
         }
     }
 
     private void openTabHuruf() {
         openTabTulang();
     }
-    
+
     @FXML
     public void sliderListener() {
         int valFrom = (int) Math.round(sliderEqHistogramFrom.getValue());
         int valTo = (int) Math.round(sliderEqHistogramTo.getValue());
         int from = valFrom <= valTo ? valFrom : valTo;
         int to = valFrom <= valTo ? valTo : valFrom;
-        
+
         chartEqHistogram.getData().clear();
         openTabEkualisasiHistogram(from, to);
     }
-    
+
     private void setImageView() {
         setIvImage(ivMainOri, gambar.biOriginal);
         setIvImage(ivMainGray, gambar.biGrayscale);
@@ -286,6 +299,8 @@ public class MainPageController implements Initializable {
         setIvImage(ivKodeBelok, gambar.biBinary);
         setIvImage(ivKodeBelokBolong, gambar.biBolong);
         setIvImage(ivTulangBw, gambar.biOriginal);
+        setIvImage(ivTulangResult, gambar.biTulang);
+        setIvImage(ivHuruf, gambar.biTulang);
     }
 
     private void setIvImage(ImageView iv, BufferedImage image) {
@@ -303,61 +318,7 @@ public class MainPageController implements Initializable {
             iv.setFitWidth(image.getWidth());
         }
     }
-    
-    private void setTextChainCode() {
-        String chain = "";
-        int q = 1;
-        for (List<String> x : chainData) {
-            if (x.size() > 0) {
-                chain += "Object : " + q + "\n";
-                Iterator j = x.iterator();
-                while (j.hasNext()) {
-                    chain += j.next() + ",";
-                }
-                chain += "\n";
-                q++;
-            }
-        }
-        textChainCode.setText(chain);
-    }
-    
-    private void setTextKodeBelok() {
-        String belok = "";
-        int q = 1;
-        for (List<String> x : belokData) {
-            if (x.size() > 0) {
-                belok += "Object : " + q + "\n";
-                Iterator i = x.iterator();
-                while (i.hasNext()) {
-                    belok += i.next() + ",";
-                }
-                belok += "\n";
-                q++;
-            }
-        }
-        textKodeBelok.setText(belok);
-    }
-    
-    private void setTextTulangChain(List<List<String>> data) {
-        List<String> cabang = data.get(0);
-        data.remove(0);
-        String tulangChain = "";
-        Iterator i = cabang.iterator();
-        tulangChain += "Cabang : \n";
-        while (i.hasNext()) {
-            tulangChain += i.next();
-        }
-        tulangChain += "\n\n";
-        String tulangChainBelok = Operation.getOp().getChainBelokHuruf(data);
-        tulangChain += "Chain Code : \n" + tulangChainBelok;
-        textTulangChain.setText(tulangChain);
-        setTextHuruf(td.get(tulangChainBelok));
-    }
-    
-    private void setTextHuruf(String huruf) {
-        textHuruf.setText(huruf);
-    }
-    
+
     private void setMap() {
         td.put("7,+,0,-,7,7,7,-,6,+,7,7,7,7,7,7,+,0,-,7,+,0,-,7,+,0,0,0,-,7,+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,+,1,-,0,0,0,+,1,-,0,+,1,-,0,+,1,1,1,1,+,2,2,-,1,+,2,2,2,-,1,+,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,-,1,+,2,2,2,2,2,2,-,7,-,6,6,6,+,7,-,6,6,+,7,7,7,7,+,0,-,7,7,+,0,-,7,+,0,0,0,-,7,+,0,0,0,0,0,-,7,+,0,0,0,0,0,-,7,+,0,0,0,-,7,+,0,0,0,0,-,7,+,0,0,0,0,0,0,0,0,0,6,2,2,2,-,1,+,2,2,2,-,1,+,2,-,1,+,2,-,1,-,0,+,1,1,-,0,0,+,1,-,0,+,1,-,0,0,0,0,0,0,0,0,0,-,7,+,0,0,0,0,0,0,-,7,+,0,-,7,+,0,-,7,+,0,0,-,7,7,7,+,0,0,-,7,+,0,-,7,+,0,0,-,7,-,7,7,7,7,", "a");
         td.put("2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,-,1,-,7,+,0,-,7,+,0,0,-,7,+,0,-,7,+,0,-,7,+,0,-,7,7,7,+,0,0,-,7,+,0,-,7,+,0,0,0,0,0,0,0,0,0,0,+,1,-,0,0,+,1,-,0,+,1,-,0,+,1,1,1,1,+,2,-,1,1,+,2,-,1,+,2,-,1,+,2,2,-,1,+,2,2,2,2,-,1,+,2,2,2,-,1,+,2,2,2,2,2,2,2,2,2,2,+,3,-,2,2,2,+,3,-,2,2,2,2,+,3,-,2,2,+,3,3,-,2,+,3,-,2,+,3,+,6,-,3,-,2,+,3,3,3,+,4,-,3,+,4,-,3,+,4,-,3,+,6,-,3,+,4,4,-,3,+,4,4,4,4,4,+,5,-,4,4,4,4,+,5,-,2,+,5,5,-,4,+,5,5,-,2,+,5,+,6,-,4,4,+,5,-,4,4,+,5,-,4,+,5,5,-,2,+,3,+,7,-,6,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,1,1,", "b");
@@ -422,223 +383,4 @@ public class MainPageController implements Initializable {
         td.put("1,-,0,+,1,-,0,+,2,-,1,1,+,2,-,1,1,+,2,-,1,1,+,2,-,1,1,1,+,2,-,1,1,+,2,-,1,1,+,2,-,1,1,+,2,-,1,1,+,2,-,1,1,+,2,-,1,+,2,-,1,1,+,2,-,1,1,+,2,-,1,+,2,-,1,+,2,-,1,1,1,-,0,+,1,-,0,0,-,7,+,0,-,7,+,0,-,6,+,7,7,-,6,+,7,7,7,-,6,+,7,7,-,6,+,7,-,6,+,7,7,-,6,+,7,7,-,6,+,7,7,-,6,+,7,7,-,6,+,7,7,-,6,+,7,7,-,6,+,7,7,7,-,6,+,7,7,-,6,+,7,7,-,6,+,7,7,7,+,0,-,7,+,0,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,7,7,", "Y");
         td.put("7,-,6,6,+,7,-,6,6,+,7,7,7,7,7,7,-,6,+,7,7,7,7,-,6,+,7,7,7,7,-,6,+,7,7,7,7,-,6,+,7,7,7,7,7,-,6,+,7,7,7,7,-,6,+,7,7,7,7,-,6,+,7,7,7,7,-,6,+,7,7,7,7,7,-,6,+,7,7,7,7,-,6,+,7,7,7,7,-,6,+,7,7,7,7,-,6,6,6,+,7,-,6,6,+,7,-,6,6,-,5,-,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,6,2,2,2,2,-,1,-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,7,7,7,7,", "Z");
     }
-    
-    // <editor-fold defaultstate="collapsed" desc="Deprecated methods">
-    
-    @Deprecated
-    private void setBufferedImage() throws IOException {
-        // buffOri = ImageIO.read(fileImageOri); // tak pakai buff lagi
-        // buffGray = gambar.biGrayscale; // tak pakai buff lagi
-        // buffGrayEq = gambar.biEqualized; // tak pakai buff lagi
-        // buffBw = gambar.biBinary; // tak pakai buff lagi
-        //buffTulang = gambar.biTulang; // tidak perlu
-        // buffBolong = gambar.biBolong; // tak pakai buff lagi
-        //chainData = Operation.getOp().getChainCode(buffBolong); // tidak perlu
-        //belokData = Operation.getOp().getKodeBelok(chainData); // tidak perlu
-    }
-    
-    @Deprecated
-    private void setTextView() {
-        //setTextChainCode(); // tidak perlu
-        //setTextKodeBelok(); // tidak perlu
-        //setTextTulangChain(Operation.getOp().getChainCodeTulang(buffTulang)); // tidak perlu
-    }
-    
-    @Deprecated
-    private void setIvMainOriImage(BufferedImage image) {
-        if (image.getWidth() > ivMainOri.getFitWidth() || image.getHeight() > ivMainOri.getFitHeight()) {
-            ivMainOri.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivMainOri.setImage(SwingFXUtils.toFXImage(image, null));
-            ivMainOri.setFitHeight(image.getHeight());
-            ivMainOri.setFitWidth(image.getWidth());
-        }
-    }
-
-    @Deprecated
-    private void setIvMainGrayImage(BufferedImage image) {
-        if (image.getWidth() > ivMainGray.getFitWidth() || image.getHeight() > ivMainGray.getFitHeight()) {
-            ivMainGray.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivMainGray.setImage(SwingFXUtils.toFXImage(image, null));
-            ivMainGray.setFitHeight(image.getHeight());
-            ivMainGray.setFitWidth(image.getWidth());
-        }
-    }
-
-    @Deprecated
-    private void setIvMainGrayEqImage(BufferedImage image) {
-        if (image.getWidth() > ivMainGrayEq.getFitWidth() || image.getHeight() > ivMainGrayEq.getFitHeight()) {
-            ivMainGrayEq.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivMainGrayEq.setImage(SwingFXUtils.toFXImage(image, null));
-            ivMainGrayEq.setFitHeight(image.getHeight());
-            ivMainGrayEq.setFitWidth(image.getWidth());
-        }
-    }
-
-    @Deprecated
-    private void setIvMainBwImage(BufferedImage image) {
-        if (image.getWidth() > ivMainBw.getFitWidth() || image.getHeight() > ivMainBw.getFitHeight()) {
-            ivMainBw.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivMainBw.setImage(SwingFXUtils.toFXImage(image, null));
-            ivMainBw.setFitHeight(image.getHeight());
-            ivMainBw.setFitWidth(image.getWidth());
-        }
-    }
-
-    @Deprecated
-    private void setIvHistogram(BufferedImage image) {
-        if (image.getWidth() > ivHistogram.getFitWidth() || image.getHeight() > ivHistogram.getFitHeight()) {
-            ivHistogram.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivHistogram.setImage(SwingFXUtils.toFXImage(image, null));
-            ivHistogram.setFitHeight(image.getHeight());
-            ivHistogram.setFitWidth(image.getWidth());
-        }
-    }
-
-    @Deprecated
-    private void createGraph() {
-        if (chartHistogram.getData().size() == 0) {
-            XYChart.Series seriesR = new XYChart.Series();
-            XYChart.Series seriesG = new XYChart.Series();
-            XYChart.Series seriesB = new XYChart.Series();
-            XYChart.Series seriesGray = new XYChart.Series();
-
-            ObservableList dataR = seriesR.getData();
-            ObservableList dataG = seriesG.getData();
-            ObservableList dataB = seriesB.getData();
-            ObservableList dataGray = seriesGray.getData();
-
-            for (int i = 0; i < 256; i++) {
-                dataR.add(new XYChart.Data(i, gambar.histogram.r[i]));
-                dataG.add(new XYChart.Data(i, gambar.histogram.g[i]));
-                dataB.add(new XYChart.Data(i, gambar.histogram.b[i]));
-                dataGray.add(new XYChart.Data(i, gambar.histogram.gray[i]));
-            }
-            chartHistogram.getData().add(seriesR);
-            chartHistogram.getData().add(seriesG);
-            chartHistogram.getData().add(seriesB);
-            chartHistogram.getData().add(seriesGray);
-
-            seriesR.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(255, 0, 0, 1.0);");
-            seriesG.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 255, 0, 1.0);");
-            seriesB.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 255, 1.0);");
-            seriesGray.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(128, 128, 128, 1.0);");
-        }
-    }
-
-    @Deprecated
-    private void setIvHistogramEq(BufferedImage image) {
-        if (image.getWidth() > ivEqHistogram.getFitWidth() || image.getHeight() > ivEqHistogram.getFitHeight()) {
-            ivEqHistogram.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivEqHistogram.setImage(SwingFXUtils.toFXImage(image, null));
-            ivEqHistogram.setFitHeight(image.getHeight());
-            ivEqHistogram.setFitWidth(image.getWidth());
-        }
-    }
-
-    @Deprecated
-    private void createEqGraph(int from, int to) {
-        if (chartEqHistogram.getData().size() == 0) {
-            gambar.equalize(from, to);
-            gambar.updateBufferedImage();
-//            setIvHistogramEq(gambar.biEqualized);
-
-            XYChart.Series seriesGray = new XYChart.Series();
-            XYChart.Series seriesEq = new XYChart.Series();
-            ObservableList dataGray = seriesGray.getData();
-            ObservableList dataEq = seriesEq.getData();
-            for (int i = 0; i < 256; i++) {
-                dataGray.add(new XYChart.Data(i, gambar.histogram.gray[i]));
-                dataEq.add(new XYChart.Data(i, gambar.histogram.equalized[i]));
-            }
-            chartEqHistogram.getData().add(seriesGray);
-            chartEqHistogram.getData().add(seriesEq);
-            seriesGray.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(255, 128, 128, 1.0);");
-            seriesEq.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 0, 1.0);");
-        }
-    }
-
-    @Deprecated
-    private void setIvChainCode(BufferedImage image) {
-        if (image.getWidth() > ivChainCode.getFitWidth() || image.getHeight() > ivChainCode.getFitHeight()) {
-            ivChainCode.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivChainCode.setImage(SwingFXUtils.toFXImage(image, null));
-            ivChainCode.setFitHeight(image.getHeight());
-            ivChainCode.setFitWidth(image.getWidth());
-        }
-    }
-
-    @Deprecated
-    private void setIvChainCodeBolong(BufferedImage image) {
-        if (image.getWidth() > ivChainCodeBolong.getFitWidth() || image.getHeight() > ivChainCodeBolong.getFitHeight()) {
-            ivChainCodeBolong.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivChainCodeBolong.setImage(SwingFXUtils.toFXImage(image, null));
-            ivChainCodeBolong.setFitHeight(image.getHeight());
-            ivChainCodeBolong.setFitWidth(image.getWidth());
-        }
-    }
-
-    @Deprecated
-    private void setIvKodeBelok(BufferedImage image) {
-        if (image.getWidth() > ivKodeBelok.getFitWidth() || image.getHeight() > ivKodeBelok.getFitHeight()) {
-            ivKodeBelok.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivKodeBelok.setImage(SwingFXUtils.toFXImage(image, null));
-            ivKodeBelok.setFitHeight(image.getHeight());
-            ivKodeBelok.setFitWidth(image.getWidth());
-        }
-    }
-
-    @Deprecated
-    private void setIvKodeBelokBolong(BufferedImage image) {
-        if (image.getWidth() > ivKodeBelokBolong.getFitWidth() || image.getHeight() > ivKodeBelokBolong.getFitHeight()) {
-            ivKodeBelokBolong.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivKodeBelokBolong.setImage(SwingFXUtils.toFXImage(image, null));
-            ivKodeBelokBolong.setFitHeight(image.getHeight());
-            ivKodeBelokBolong.setFitWidth(image.getWidth());
-        }
-    }
-
-    @Deprecated
-    private void setIvTulangBw(BufferedImage image) {
-        if (image.getWidth() > ivTulangBw.getFitWidth() || image.getHeight() > ivTulangBw.getFitHeight()) {
-            ivTulangBw.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivTulangBw.setImage(SwingFXUtils.toFXImage(image, null));
-            ivTulangBw.setFitHeight(image.getHeight());
-            ivTulangBw.setFitWidth(image.getWidth());
-        }
-    }
-
-    @Deprecated
-    private void setIvTulangResult(BufferedImage image) {
-        if (image.getWidth() > ivTulangResult.getFitWidth() || image.getHeight() > ivTulangResult.getFitHeight()) {
-            ivTulangResult.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivTulangResult.setImage(SwingFXUtils.toFXImage(image, null));
-            ivTulangResult.setFitHeight(image.getHeight());
-            ivTulangResult.setFitWidth(image.getWidth());
-        }
-    }
-
-    @Deprecated
-    private void setIvHuruf(BufferedImage image) {
-        if (image.getWidth() > ivHuruf.getFitWidth() || image.getHeight() > ivHuruf.getFitHeight()) {
-            ivHuruf.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            ivHuruf.setImage(SwingFXUtils.toFXImage(image, null));
-            ivHuruf.setFitHeight(image.getHeight());
-            ivHuruf.setFitWidth(image.getWidth());
-        }
-    }
-    
-    // </editor-fold>
 }

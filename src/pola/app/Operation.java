@@ -8,7 +8,6 @@ package pola.app;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,22 +34,6 @@ public class Operation {
             this.x = x;
             this.y = y;
         }
-
-        public int getX() {
-            return x;
-        }
-
-        public void setX(int x) {
-            this.x = x;
-        }
-
-        public int getY() {
-            return y;
-        }
-
-        public void setY(int y) {
-            this.y = y;
-        }
     }
     public static Operation op;
 
@@ -59,298 +42,6 @@ public class Operation {
             op = new Operation();
         }
         return op;
-    }
-
-    public BufferedImage convertGray(BufferedImage buffOri) {
-        BufferedImage tmp = new BufferedImage(buffOri.getColorModel(), buffOri.copyData(null), buffOri.isAlphaPremultiplied(), null);
-        for (int i = 0; i < tmp.getHeight(); i++) {
-            for (int j = 0; j < tmp.getWidth(); j++) {
-                Color c = new Color(tmp.getRGB(j, i));
-                int red = (int) (c.getRed() * 0.299);
-                int green = (int) (c.getGreen() * 0.587);
-                int blue = (int) (c.getBlue() * 0.114);
-                Color newColor = new Color(red + green + blue,
-                        red + green + blue, red + green + blue);
-                tmp.setRGB(j, i, newColor.getRGB());
-            }
-        }
-        return tmp;
-    }
-
-    public BufferedImage convertBw(BufferedImage buffGray) {
-        BufferedImage tmp = new BufferedImage(buffGray.getColorModel(), buffGray.copyData(null), buffGray.isAlphaPremultiplied(), null);
-        for (int i = 0; i < tmp.getHeight(); i++) {
-            for (int j = 0; j < tmp.getWidth(); j++) {
-                if (((new Color(tmp.getRGB(j, i)).getRed() + new Color(tmp.getRGB(j, i)).getGreen() + new Color(tmp.getRGB(j, i)).getBlue()) / 3) < 150) {
-                    tmp.setRGB(j, i, new Color(0, 0, 0).getRGB());
-                } else {
-                    tmp.setRGB(j, i, new Color(255, 255, 255).getRGB());
-                }
-            }
-        }
-        return tmp;
-    }
-
-    public ArrayList<int[]> getHistogramData(BufferedImage image) {
-        ArrayList<int[]> data = new ArrayList<>();
-        int red[] = new int[256];
-        int green[] = new int[256];
-        int blue[] = new int[256];
-        Arrays.fill(red, 0);
-        Arrays.fill(green, 0);
-        Arrays.fill(blue, 0);
-        for (int i = 0; i < image.getHeight(); i++) {
-            for (int j = 0; j < image.getWidth(); j++) {
-                Color color = new Color(image.getRGB(j, i));
-                red[color.getRed()]++;
-                green[color.getGreen()]++;
-                blue[color.getBlue()]++;
-            }
-        }
-        data.add(red);
-        data.add(green);
-        data.add(blue);
-        return data;
-    }
-
-    public BufferedImage equalizeImage(BufferedImage buffGray) {
-        BufferedImage tmp = new BufferedImage(buffGray.getColorModel(), buffGray.copyData(null), buffGray.isAlphaPremultiplied(), null);
-        ArrayList<int[]> dataHisto = getHistogramData(tmp);
-        int[] rhistogram = new int[256];
-        int[] ghistogram = new int[256];
-        int[] bhistogram = new int[256];
-        Arrays.fill(rhistogram, 0);
-        Arrays.fill(ghistogram, 0);
-        Arrays.fill(bhistogram, 0);
-        long sumr = 0;
-        long sumg = 0;
-        long sumb = 0;
-        float skala = (float) (255.0 / (tmp.getWidth() * tmp.getHeight()));
-        for (int i = 0; i < rhistogram.length; i++) {
-            sumr += dataHisto.get(0)[i];
-            int valr = (int) (sumr * skala);
-            if (valr > 255) {
-                rhistogram[i] = 255;
-            } else {
-                rhistogram[i] = valr;
-            }
-            sumg += dataHisto.get(1)[i];
-            int valg = (int) (sumg * skala);
-            if (valg > 255) {
-                ghistogram[i] = 255;
-            } else {
-                ghistogram[i] = valg;
-            }
-            sumb += dataHisto.get(2)[i];
-            int valb = (int) (sumb * skala);
-            if (valb > 255) {
-                bhistogram[i] = 255;
-            } else {
-                bhistogram[i] = valb;
-            }
-        }
-        for (int i = 0; i < tmp.getHeight(); i++) {
-            for (int j = 0; j < tmp.getWidth(); j++) {
-                Color newColor = new Color(rhistogram[new Color(tmp.getRGB(j, i)).getRed()], ghistogram[new Color(tmp.getRGB(j, i)).getGreen()], bhistogram[new Color(tmp.getRGB(j, i)).getBlue()]);
-                tmp.setRGB(j, i, newColor.getRGB());
-            }
-        }
-        return tmp;
-    }
-
-    public int[][] rollMatrix(int roll, int[][] data) {
-        int[][] hasil = new int[data.length][data[0].length];
-        int tmp[];
-        int rl;
-        switch (roll) {
-            case 1:
-                tmp = data[data.length - 1];
-                hasil[0] = tmp;
-                for (int i = 1; i < data.length; i++) {
-                    hasil[i] = data[i - 1];
-                }
-                break;
-            case 2:
-                tmp = data[0];
-                for (int i = 0; i < data.length - 1; i++) {
-                    hasil[i] = data[i + 1];
-                }
-                hasil[data.length - 1] = tmp;
-                break;
-            case 3:
-                for (int i = 0; i < data.length; i++) {
-                    rl = data[i][data[i].length - 1];
-                    hasil[i][0] = rl;
-                    for (int j = 1; j < data[i].length; j++) {
-                        hasil[i][j] = data[i][j - 1];
-                    }
-                }
-                break;
-            case 4:
-                for (int i = 0; i < data.length; i++) {
-                    rl = data[i][0];
-                    for (int j = 0; j < data[i].length - 1; j++) {
-                        hasil[i][j] = data[i][j + 1];
-                    }
-                    hasil[i][data[i].length - 1] = rl;
-                }
-                break;
-        }
-        return hasil;
-    }
-
-    public int[][] convertBinaryImge(BufferedImage bwImage) {
-        int[][] hasil = new int[bwImage.getHeight()][bwImage.getWidth()];
-        for (int i = 0; i < bwImage.getHeight(); i++) {
-            for (int j = 0; j < bwImage.getWidth(); j++) {
-                if (new Color(bwImage.getRGB(j, i)).getRed() == 0) {
-                    hasil[i][j] = 1;
-                } else {
-                    hasil[i][j] = 0;
-                }
-            }
-        }
-        return hasil;
-    }
-
-    public BufferedImage bolongin(BufferedImage bwImage) {
-        BufferedImage tmp = new BufferedImage(bwImage.getColorModel(), bwImage.copyData(null), bwImage.isAlphaPremultiplied(), null);
-        int[][] binaryImage = convertBinaryImge(tmp);
-        int[][] up = rollMatrix(1, binaryImage);
-        int[][] down = rollMatrix(2, binaryImage);
-        int[][] right = rollMatrix(3, binaryImage);
-        int[][] left = rollMatrix(4, binaryImage);
-        int x[][] = new int[tmp.getHeight()][tmp.getWidth()];
-        for (int i = 0; i < tmp.getHeight(); i++) {
-            for (int j = 0; j < tmp.getWidth(); j++) {
-                int res = binaryImage[i][j] - (up[i][j] * down[i][j] * right[i][j] * left[i][j]);
-                x[i][j] = res;
-                if (res == 1) {
-                    tmp.setRGB(j, i, new Color(0, 0, 0).getRGB());
-                } else {
-                    tmp.setRGB(j, i, new Color(255, 255, 255).getRGB());
-                }
-            }
-        }
-        return tmp;
-    }
-
-    public int getA(int[][] binaryImage, int y, int x) {
-        int count = 0;
-        // p2 p3
-        if (y - 1 >= 0 && x + 1 < binaryImage[y].length
-                && binaryImage[y - 1][x] == 0 && binaryImage[y - 1][x + 1] == 1) {
-            count++;
-        }
-        // p3 p4
-        if (y - 1 >= 0 && x + 1 < binaryImage[y].length
-                && binaryImage[y - 1][x + 1] == 0 && binaryImage[y][x + 1] == 1) {
-            count++;
-        }
-        // p4 p5
-        if (y + 1 < binaryImage.length && x + 1 < binaryImage[y].length
-                && binaryImage[y][x + 1] == 0 && binaryImage[y + 1][x + 1] == 1) {
-            count++;
-        }
-        // p5 p6
-        if (y + 1 < binaryImage.length && x + 1 < binaryImage[y].length
-                && binaryImage[y + 1][x + 1] == 0 && binaryImage[y + 1][x] == 1) {
-            count++;
-        }
-        // p6 p7
-        if (y + 1 < binaryImage.length && x - 1 >= 0
-                && binaryImage[y + 1][x] == 0 && binaryImage[y + 1][x - 1] == 1) {
-            count++;
-        }
-        // p7 p8
-        if (y + 1 < binaryImage.length && x - 1 >= 0
-                && binaryImage[y + 1][x - 1] == 0 && binaryImage[y][x - 1] == 1) {
-            count++;
-        }
-        // p8 p9
-        if (y - 1 >= 0 && x - 1 >= 0 && binaryImage[y][x - 1] == 0
-                && binaryImage[y - 1][x - 1] == 1) {
-            count++;
-        }
-        // p9 p2
-        if (y - 1 >= 0 && x - 1 >= 0 && binaryImage[y - 1][x - 1] == 0
-                && binaryImage[y - 1][x] == 1) {
-            count++;
-        }
-        return count;
-    }
-
-    public int getB(int[][] binaryImage, int y, int x) {
-        return binaryImage[y - 1][x] + binaryImage[y - 1][x + 1]
-                + binaryImage[y][x + 1] + binaryImage[y + 1][x + 1]
-                + binaryImage[y + 1][x] + binaryImage[y + 1][x - 1]
-                + binaryImage[y][x - 1] + binaryImage[y - 1][x - 1];
-    }
-
-    public BufferedImage tulangin(BufferedImage bwImage) {
-        BufferedImage tmp = new BufferedImage(bwImage.getColorModel(), bwImage.copyData(null), bwImage.isAlphaPremultiplied(), null);
-        int[][] binaryImage = convertBinaryImge(tmp);
-        int a, b;
-        List<Point> pointsToChange = new ArrayList<>();
-        boolean hasChange;
-        do {
-            hasChange = false;
-            for (int y = 1; y + 1 < binaryImage.length; y++) {
-                for (int x = 1; x + 1 < binaryImage[y].length; x++) {
-                    a = getA(binaryImage, y, x);
-                    b = getB(binaryImage, y, x);
-                    if (binaryImage[y][x] == 1
-                            && 2 <= b
-                            && b <= 6
-                            && a == 1
-                            && (binaryImage[y - 1][x] * binaryImage[y][x + 1]
-                            * binaryImage[y + 1][x] == 0)
-                            && (binaryImage[y][x + 1] * binaryImage[y + 1][x]
-                            * binaryImage[y][x - 1] == 0)) {
-                        pointsToChange.add(new Point(x, y));
-                        hasChange = true;
-                    }
-                }
-            }
-            pointsToChange.stream().forEach((point) -> {
-                binaryImage[point.y][point.x] = 0;
-            });
-            pointsToChange.clear();
-            for (int y = 1; y + 1 < binaryImage.length; y++) {
-                for (int x = 1; x + 1 < binaryImage[y].length; x++) {
-                    a = getA(binaryImage, y, x);
-                    b = getB(binaryImage, y, x);
-                    if (binaryImage[y][x] == 1
-                            && 2 <= b
-                            && b <= 6
-                            && a == 1
-                            && (binaryImage[y - 1][x] * binaryImage[y][x + 1]
-                            * binaryImage[y][x - 1] == 0)
-                            && (binaryImage[y - 1][x] * binaryImage[y + 1][x]
-                            * binaryImage[y][x - 1] == 0)) {
-                        pointsToChange.add(new Point(x, y));
-                        hasChange = true;
-                    }
-                }
-            }
-            pointsToChange.stream().forEach((point) -> {
-                binaryImage[point.y][point.x] = 0;
-            });
-            pointsToChange.clear();
-        } while (hasChange);
-        for (int i = 0; i < binaryImage.length; i++) {
-            for (int j = 0; j < binaryImage[i].length; j++) {
-                int newPix = binaryImage[i][j];
-                if (newPix == 1) {
-                    newPix = 0;
-                } else {
-                    newPix = 255;
-                }
-                Color newColor = new Color(newPix, newPix, newPix);
-                tmp.setRGB(j, i, newColor.getRGB());
-            }
-        }
-        return tmp;
     }
 
     public List<List<String>> getChainCode(BufferedImage bolongImage) {
@@ -371,83 +62,83 @@ public class Operation {
     private List<String> createChainCode(Point start, BufferedImage tmp) {
         List<String> data = new ArrayList();
         boolean run = true;
-        Point current = new Point(start.getX(), start.getY());
+        Point current = new Point(start.x, start.y);
         boolean first = true;
         while (run) {
             try {
                 if (first) {
                     first = false;
-                    if (tmp.getRGB(current.getX() + 1, current.getY()) == -16777216) {
+                    if (tmp.getRGB(current.x + 1, current.y) == -16777216) {
                         data.add("0");
-                        current.setXY(current.getX() + 1, current.getY());
-                        tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                    } else if (tmp.getRGB(current.getX(), current.getY() + 1) == -16777216) {
+                        current.setXY(current.x + 1, current.y);
+                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                    } else if (tmp.getRGB(current.x, current.y + 1) == -16777216) {
                         data.add("2");
-                        current.setXY(current.getX(), current.getY() + 1);
-                        tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                    } else if (tmp.getRGB(current.getX() - 1, current.getY()) == -16777216) {
+                        current.setXY(current.x, current.y + 1);
+                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                    } else if (tmp.getRGB(current.x - 1, current.y) == -16777216) {
                         data.add("4");
-                        current.setXY(current.getX() - 1, current.getY());
-                        tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                    } else if (tmp.getRGB(current.getX(), current.getY() - 1) == -16777216) {
+                        current.setXY(current.x - 1, current.y);
+                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                    } else if (tmp.getRGB(current.x, current.y - 1) == -16777216) {
                         data.add("6");
-                        current.setXY(current.getX(), current.getY() - 1);
-                        tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                    } else if (tmp.getRGB(current.getX() + 1, current.getY() + 1) == -16777216) {
+                        current.setXY(current.x, current.y - 1);
+                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                    } else if (tmp.getRGB(current.x + 1, current.y + 1) == -16777216) {
                         data.add("1");
-                        current.setXY(current.getX() + 1, current.getY() + 1);
-                        tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                    } else if (tmp.getRGB(current.getX() - 1, current.getY() + 1) == -16777216) {
+                        current.setXY(current.x + 1, current.y + 1);
+                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                    } else if (tmp.getRGB(current.x - 1, current.y + 1) == -16777216) {
                         data.add("3");
-                        current.setXY(current.getX() - 1, current.getY() + 1);
-                        tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                    } else if (tmp.getRGB(current.getX() - 1, current.getY() - 1) == -16777216) {
+                        current.setXY(current.x - 1, current.y + 1);
+                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                    } else if (tmp.getRGB(current.x - 1, current.y - 1) == -16777216) {
                         data.add("5");
-                        current.setXY(current.getX() - 1, current.getY() - 1);
-                        tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                    } else if (tmp.getRGB(current.getX() + 1, current.getY() - 1) == -16777216) {
+                        current.setXY(current.x - 1, current.y - 1);
+                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                    } else if (tmp.getRGB(current.x + 1, current.y - 1) == -16777216) {
                         data.add("7");
-                        current.setXY(current.getX() + 1, current.getY() - 1);
-                        tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
+                        current.setXY(current.x + 1, current.y - 1);
+                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
                     } else {
                         run = false;
                     }
                 } else {
-                    if (current.getX() == start.getX() && current.getY() == start.getY()) {
+                    if (current.x == start.x && current.y == start.y) {
                         run = false;
                     } else {
-                        if (tmp.getRGB(current.getX() + 1, current.getY()) == -16777216) {
+                        if (tmp.getRGB(current.x + 1, current.y) == -16777216) {
                             data.add("0");
-                            current.setXY(current.getX() + 1, current.getY());
-                            tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                        } else if (tmp.getRGB(current.getX(), current.getY() + 1) == -16777216) {
+                            current.setXY(current.x + 1, current.y);
+                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                        } else if (tmp.getRGB(current.x, current.y + 1) == -16777216) {
                             data.add("2");
-                            current.setXY(current.getX(), current.getY() + 1);
-                            tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                        } else if (tmp.getRGB(current.getX() - 1, current.getY()) == -16777216) {
+                            current.setXY(current.x, current.y + 1);
+                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                        } else if (tmp.getRGB(current.x - 1, current.y) == -16777216) {
                             data.add("4");
-                            current.setXY(current.getX() - 1, current.getY());
-                            tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                        } else if (tmp.getRGB(current.getX(), current.getY() - 1) == -16777216) {
+                            current.setXY(current.x - 1, current.y);
+                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                        } else if (tmp.getRGB(current.x, current.y - 1) == -16777216) {
                             data.add("6");
-                            current.setXY(current.getX(), current.getY() - 1);
-                            tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                        } else if (tmp.getRGB(current.getX() + 1, current.getY() + 1) == -16777216) {
+                            current.setXY(current.x, current.y - 1);
+                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                        } else if (tmp.getRGB(current.x + 1, current.y + 1) == -16777216) {
                             data.add("1");
-                            current.setXY(current.getX() + 1, current.getY() + 1);
-                            tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                        } else if (tmp.getRGB(current.getX() - 1, current.getY() + 1) == -16777216) {
+                            current.setXY(current.x + 1, current.y + 1);
+                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                        } else if (tmp.getRGB(current.x - 1, current.y + 1) == -16777216) {
                             data.add("3");
-                            current.setXY(current.getX() - 1, current.getY() + 1);
-                            tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                        } else if (tmp.getRGB(current.getX() - 1, current.getY() - 1) == -16777216) {
+                            current.setXY(current.x - 1, current.y + 1);
+                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                        } else if (tmp.getRGB(current.x - 1, current.y - 1) == -16777216) {
                             data.add("5");
-                            current.setXY(current.getX() - 1, current.getY() - 1);
-                            tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                        } else if (tmp.getRGB(current.getX() + 1, current.getY() - 1) == -16777216) {
+                            current.setXY(current.x - 1, current.y - 1);
+                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                        } else if (tmp.getRGB(current.x + 1, current.y - 1) == -16777216) {
                             data.add("7");
-                            current.setXY(current.getX() + 1, current.getY() - 1);
-                            tmp.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
+                            current.setXY(current.x + 1, current.y - 1);
+                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
                         } else {
                             run = false;
                         }
@@ -589,13 +280,7 @@ public class Operation {
         return data;
     }
 
-    public String deteksi() {
-        String hasil = null;
-
-        return hasil;
-    }
-
-    public int getTatangga(BufferedImage image, Point p) {
+    public int getCountTatangga(BufferedImage image, Point p) {
         int count = 0;
         try {
             if (p.x == 0 && p.y == 0) {
@@ -742,7 +427,7 @@ public class Operation {
             for (int j = 0; j < tulang.getHeight(); j++) {
                 if (tulang.getRGB(i, j) == -16777216) {
                     start.setXY(i, j);
-                    if (getTatangga(tulang, start) > 2) {
+                    if (getCountTatangga(tulang, start) > 2) {
                         data.add("X : " + i + " Y : " + j + " / ");
                     }
                 }
@@ -760,29 +445,14 @@ public class Operation {
             for (int j = 0; j < tmp.getHeight(); j++) {
                 if (tmp.getRGB(i, j) == -16777216) {
                     start.setXY(i, j);
+                    if (getCountTatangga(tmp, start) < 2) {
 //                    System.out.println("->x" + i + "->h" + j);
                     object.add(createChainCodeTulang(start, tmp));
+                    }
                 }
             }
         }
         return object;
-    }
-
-    public String getChainBelokHuruf(List<List<String>> data) {
-        List<List<String>> bl = getKodeBelok(data);
-        String chain = "";
-        int q = 1;
-        for (List<String> x : bl) {
-//            chain += "Object : " + q + "\n";
-            Iterator j = x.iterator();
-            while (j.hasNext()) {
-                chain += j.next() + ",";
-            }
-//            chain += "\n";
-            q++;
-        }
-        System.out.println("Op : " + chain);
-        return chain;
     }
 
     public List<String> createChainCodeTulang(Point start, BufferedImage tulang) {
@@ -791,38 +461,38 @@ public class Operation {
         boolean run = true;
         while (run) {
             try {
-                if (tulang.getRGB(current.x + 1, current.getY()) == -16777216) {
+                if (tulang.getRGB(current.x + 1, current.y) == -16777216) {
                     data.add("0");
-                    current.setXY(current.x + 1, current.getY());
-                    tulang.setRGB(current.x, current.getY(), Color.WHITE.getRGB());
-                } else if (tulang.getRGB(current.getX(), current.getY() + 1) == -16777216) {
+                    current.setXY(current.x + 1, current.y);
+                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.x, current.y + 1) == -16777216) {
                     data.add("2");
-                    current.setXY(current.getX(), current.getY() + 1);
-                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                } else if (tulang.getRGB(current.getX() - 1, current.getY()) == -16777216) {
+                    current.setXY(current.x, current.y + 1);
+                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.x - 1, current.y) == -16777216) {
                     data.add("4");
-                    current.setXY(current.getX() - 1, current.getY());
-                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                } else if (tulang.getRGB(current.getX(), current.getY() - 1) == -16777216) {
+                    current.setXY(current.x - 1, current.y);
+                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.x, current.y - 1) == -16777216) {
                     data.add("6");
-                    current.setXY(current.getX(), current.getY() - 1);
-                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                } else if (tulang.getRGB(current.getX() + 1, current.getY() + 1) == -16777216) {
+                    current.setXY(current.x, current.y - 1);
+                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.x + 1, current.y + 1) == -16777216) {
                     data.add("1");
-                    current.setXY(current.getX() + 1, current.getY() + 1);
-                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                } else if (tulang.getRGB(current.getX() - 1, current.getY() + 1) == -16777216) {
+                    current.setXY(current.x + 1, current.y + 1);
+                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.x - 1, current.y + 1) == -16777216) {
                     data.add("3");
-                    current.setXY(current.getX() - 1, current.getY() + 1);
-                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                } else if (tulang.getRGB(current.getX() - 1, current.getY() - 1) == -16777216) {
+                    current.setXY(current.x - 1, current.y + 1);
+                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.x - 1, current.y - 1) == -16777216) {
                     data.add("5");
-                    current.setXY(current.getX() - 1, current.getY() - 1);
-                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
-                } else if (tulang.getRGB(current.x + 1, current.getY() - 1) == -16777216) {
+                    current.setXY(current.x - 1, current.y - 1);
+                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
+                } else if (tulang.getRGB(current.x + 1, current.y - 1) == -16777216) {
                     data.add("7");
-                    current.setXY(current.getX() + 1, current.getY() - 1);
-                    tulang.setRGB(current.getX(), current.getY(), Color.WHITE.getRGB());
+                    current.setXY(current.x + 1, current.y - 1);
+                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
                 } else {
                     run = false;
                 }
@@ -834,19 +504,46 @@ public class Operation {
         return data;
     }
 
-    public BufferedImage benerinTulang(BufferedImage tulang) {
-        BufferedImage tmp = new BufferedImage(tulang.getColorModel(), tulang.copyData(null), tulang.isAlphaPremultiplied(), null);
-        Point p = new Point();
-        for (int i = 0; i < tmp.getHeight(); i++) {
-            for (int j = 0; j < tmp.getWidth(); j++) {
-                if (tmp.getRGB(i, j) == -16777216) {
-                    p.setXY(j, i);
-                    if (getTatangga(tmp, p) > 2) {
-
-                    }
+    public String createTextChainCodeKodeBelok(List<List<String>> chainData) {
+        String chain = "";
+        int q = 1;
+        for (List<String> x : chainData) {
+            if (x.size() > 0) {
+                chain += "Object : " + q + "\n";
+                Iterator j = x.iterator();
+                while (j.hasNext()) {
+                    chain += j.next() + ",";
                 }
+                chain += "\n";
+                q++;
             }
         }
-        return tmp;
+        return chain;
     }
+
+    public String createTextCabang(List<String> cabang) {
+        String tCabang = "";
+        Iterator i = cabang.iterator();
+        tCabang += "Cabang : \n";
+        while (i.hasNext()) {
+            tCabang += i.next();
+        }
+        return tCabang;
+    }
+
+    public String createTextChainCodeTulang(List<List<String>> data) {
+        List<List<String>> bl = getKodeBelok(data);
+        String chain = "";
+        int q = 1;
+        for (List<String> x : bl) {
+            Iterator j = x.iterator();
+            while (j.hasNext()) {
+                chain += j.next() + ",";
+            }
+            q++;
+        }
+        System.out.println("Op : " + chain);
+        return chain;
+    }
+
 }
