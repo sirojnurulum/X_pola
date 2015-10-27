@@ -12,6 +12,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
@@ -28,6 +30,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
+import javax.imageio.ImageIO;
 import pola.FXMain;
 
 /**
@@ -182,6 +185,27 @@ public class MainPageController implements Initializable {
 
             setImageView();
             setTabAccess(true);
+            
+            // konvolusi: samar
+            new Thread(() -> {
+                BufferedImage samar = Gambar.toBufferedImage(Konvolusi.samarkan(gambar.grayscale));
+                try {
+                    ImageIO.write(samar, "PNG", new File("D:\\samar.png"));
+                } catch (IOException ex) {
+                    Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                setIvImage(ivMainGrayEq, samar);
+            }).start();
+            // konvolusi: sobel  
+            new Thread(() -> {
+                BufferedImage sobel = Gambar.toBufferedImage(Konvolusi.sobel(gambar.grayscale));
+                try {
+                    ImageIO.write(sobel, "PNG", new File("D:\\sobel.png"));
+                } catch (IOException ex) {
+                    Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                setIvImage(ivMainBw, sobel);
+            }).start();
         } else {
             if (gambar == null) {
                 setTabAccess(false);
@@ -243,6 +267,13 @@ public class MainPageController implements Initializable {
 
     private void openTabChainCode() {
         if (chainData == null) {
+            gambar.binarization();
+            gambar.bolongin();
+            gambar.updateBufferedImage();
+            
+            setIvImage(ivChainCode, gambar.biBinary);
+            setIvImage(ivChainCodeBolong, gambar.biBolong);
+            
             chainData = Operation.getOp().getChainCode(gambar.biBolong);
             textChainCode.setText(Operation.getOp().createTextChainCodeKodeBelok(chainData));
         }
@@ -251,6 +282,10 @@ public class MainPageController implements Initializable {
     private void openTabKodeBelok() {
         if (belokData == null) {
             openTabChainCode();
+            
+            setIvImage(ivKodeBelok, gambar.biBinary);
+            setIvImage(ivKodeBelokBolong, gambar.biBolong);
+            
             belokData = Operation.getOp().getKodeBelok(chainData);
             textKodeBelok.setText(Operation.getOp().createTextChainCodeKodeBelok(belokData));
         }
@@ -258,10 +293,13 @@ public class MainPageController implements Initializable {
 
     private void openTabTulang() {
         if (chainTulangData == null) {
+            openTabChainCode();
+            
             gambar.tulangin();
             gambar.updateBufferedImage();
             setIvImage(ivTulangResult, gambar.biTulang);
             setIvImage(ivHuruf, gambar.biTulang);
+            
             List<List<String>> data = Operation.getOp().getChainCodeTulang(gambar.biTulang);
             cabangData = data.get(0);
             data.remove(0);
@@ -290,17 +328,17 @@ public class MainPageController implements Initializable {
     private void setImageView() {
         setIvImage(ivMainOri, gambar.biOriginal);
         setIvImage(ivMainGray, gambar.biGrayscale);
-        setIvImage(ivMainGrayEq, gambar.biEqualized);
-        setIvImage(ivMainBw, gambar.biBinary);
+        //setIvImage(ivMainGrayEq, gambar.biEqualized); // diganti dengan konvolusi samarkan
+        //setIvImage(ivMainBw, gambar.biBinary); // diganti dengan konvolusi sobel
         setIvImage(ivHistogram, gambar.biOriginal);
-        setIvImage(ivEqHistogram, gambar.biEqualized);
-        setIvImage(ivChainCode, gambar.biBinary);
-        setIvImage(ivChainCodeBolong, gambar.biBolong);
-        setIvImage(ivKodeBelok, gambar.biBinary);
-        setIvImage(ivKodeBelokBolong, gambar.biBolong);
+        //setIvImage(ivEqHistogram, gambar.biEqualized); // dipindah ke openTabEkualisasiHistogram
+        //setIvImage(ivChainCode, gambar.biBinary); // dipindah ke openTabChainCode
+        //setIvImage(ivChainCodeBolong, gambar.biBolong); // dipindah ke openTabChainCode
+        //setIvImage(ivKodeBelok, gambar.biBinary); // dipindah ke openTabKodeBelok
+        //setIvImage(ivKodeBelokBolong, gambar.biBolong); // dipindah ke openTabKodeBelok
         setIvImage(ivTulangBw, gambar.biOriginal);
-        setIvImage(ivTulangResult, gambar.biTulang);
-        setIvImage(ivHuruf, gambar.biTulang);
+        //setIvImage(ivTulangResult, gambar.biTulang); // dipindah ke openTabTulang
+        //setIvImage(ivHuruf, gambar.biTulang); // dipindah ke openTabHuruf
     }
 
     private void setIvImage(ImageView iv, BufferedImage image) {

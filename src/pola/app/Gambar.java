@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /**
@@ -57,46 +59,49 @@ public class Gambar {
         histogram = new Histogram();
 
         read();
-        equalize(0, 255);
-        binarization();
-        bolongin();
-
         updateBufferedImage();
     }
 
-    private void read() {
-        countColor = 0;
-        boolean[][][] flagColors = new boolean[256][256][256];
-
-        // scanline
+    public final void read() {
         WritableRaster raster = biOriginal.getRaster();
         int[] pixels = raster.getPixels(0, 0, width, height, (int[]) null);
-        int x = 0, y = 0;
-        int r, g, b, gray;
-        for (int i = 0; i < pixels.length; i += 3) {
-            r = pixels[i];
-            g = pixels[i + 1];
-            b = pixels[i + 2];
 
-            // set countColor
-            if (!flagColors[r][g][b]) {
-                flagColors[r][g][b] = true;
-                countColor += 1;
-            }
+        int[][] ranges = quartering(height);
+        Thread[] threads = new Thread[4];
+        for (int t = 0; t < threads.length; t++) {
+            int[] range = ranges[t];
+            threads[t] = new Thread(() -> {
+                
+                int r, g, b, gray, p = range[0] * width * 3;
+                for (int y = range[0]; y <= range[1]; y++) {
+                    for (int x = 0; x < width; x++) {
+                        r = pixels[p];
+                        g = pixels[p + 1];
+                        b = pixels[p + 2];
 
-            gray = (int) Math.round((r + g + b + 0.0) / 3);
-            grayscale[y][x] = gray;
+                        gray = (int) Math.round((r + g + b + 0.0) / 3);
+                        grayscale[y][x] = gray;
 
-            // set histogram
-            histogram.r[r] += 1;
-            histogram.g[g] += 1;
-            histogram.b[b] += 1;
-            histogram.gray[gray] += 1;
+                        // set histogram
+                        histogram.r[r] += 1;
+                        histogram.g[g] += 1;
+                        histogram.b[b] += 1;
+                        histogram.gray[gray] += 1;
 
-            x += 1;
-            if (x == width) {
-                x = 0;
-                y += 1;
+                        p += 3;
+                    }
+                }
+                
+            });
+        }
+        for (Thread thread : threads) {
+            thread.start();
+        }
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -119,9 +124,9 @@ public class Gambar {
         int cumm = 0;
         int h;
 
-        int range = to - from + 1;
-        Cdf[] cdf = new Cdf[range];
-        for (int i = 0; i < range; i++) {
+        int interval = to - from + 1;
+        Cdf[] cdf = new Cdf[interval];
+        for (int i = 0; i < interval; i++) {
             cumm += histogram.gray[i + from];
             h = (int) Math.round(255.0 * (cumm - fromCdf) / (countPixel - fromCdf));
             cdf[i] = new Cdf(cumm, h);
@@ -133,83 +138,106 @@ public class Gambar {
         }
 
         // create image
-        int colorNew;
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                // convert to scale
-                if (grayscale[y][x] < from) {
-                    colorNew = 0;
-                } else if (grayscale[y][x] > to) {
-                    colorNew = 255;
-                } else {
-                    colorNew = cdf[grayscale[y][x] - from].scaled;
+        int[][] ranges = quartering(height);
+        Thread[] threads = new Thread[4];
+        for (int t = 0; t < threads.length; t++) {
+            int[] range = ranges[t];
+            threads[t] = new Thread(() -> {
+                
+                int colorNew;
+                for (int y = range[0]; y <= range[1]; y++) {
+                    for (int x = 0; x < width; x++) {
+                        // convert to scale
+                        if (grayscale[y][x] < from) {
+                            colorNew = 0;
+                        } else if (grayscale[y][x] > to) {
+                            colorNew = 255;
+                        } else {
+                            colorNew = cdf[grayscale[y][x] - from].scaled;
+                        }
+                        equalized[y][x] = colorNew;
+
+                        // get histogram
+                        histogram.equalized[colorNew] += 1;
+                    }
                 }
-                equalized[y][x] = colorNew;
-
-                // get histogram
-                histogram.equalized[colorNew] += 1;
+                
+            });
+        }
+        for (Thread thread : threads) {
+            thread.start();
+        }
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }
-
-    private int otsu() {
-        int total = width * height;
-        float sum = 0, sumB = 0;
-        float wB = 0, wF;
-        float varMax = 0;
-        int threshold = 0;
-
-        for (int i = 0; i < 256; i++) {
-            sum += i * histogram.gray[i];
-        }
-        for (int i = 0; i < 256; i++) {
-            wB += histogram.gray[i];
-            if (wB == 0) {
-                continue;
-            }
-
-            wF = total - wB;
-            if (wF == 0) {
-                break;
-            }
-
-            sumB += i * histogram.gray[i];
-            float mB = sumB / wB;
-            float mF = (sum - sumB) / wF;
-            float varBetween = wB * wF * (mB - mF) * (mB - mF);
-            if (varBetween > varMax) {
-                varMax = varBetween;
-                threshold = i;
-            }
-        }
-
-        return threshold;
     }
 
     public final void binarization() {
         int threshold = otsu();
-        threshold = 128; // otsu broken, temporarily set to 128
+        threshold = 128; // TODO: otsu broken, temporarily set to 128
         binarization(threshold);
     }
 
-    public void binarization(int threshold) {
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                binary[y][x] = grayscale[y][x] < threshold;
+    public final void binarization(int threshold) {
+        int[][] ranges = quartering(height);
+        Thread[] threads = new Thread[4];
+        for (int t = 0; t < threads.length; t++) {
+            int[] range = ranges[t];
+            threads[t] = new Thread(() -> {
+                
+                for (int y = range[0]; y <= range[1]; y++) {
+                    for (int x = 0; x < width; x++) {
+                        binary[y][x] = grayscale[y][x] < threshold;
+                    }
+                }
+                
+            });
+        }
+        for (Thread thread : threads) {
+            thread.start();
+        }
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
 
     public final void bolongin() {
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                bolong[y][x] = binary[y][x];
-                if (binary[y][x] && // if the pixel is black
-                        y > 0 && y < height - 1 && x > 0 && x < width - 1) {  // and not in boundary
-                    if (binary[y - 1][x] && binary[y + 1][x] && binary[y][x - 1] && binary[y][x + 1]) { // if all 4 neighbors is black
-                        bolong[y][x] = false;
+        int[][] ranges = quartering(height);
+        Thread[] threads = new Thread[4];
+        for (int t = 0; t < threads.length; t++) {
+            int[] range = ranges[t];
+            threads[t] = new Thread(() -> {
+                
+                for (int y = range[0]; y <= range[1]; y++) {
+                    for (int x = 0; x < width; x++) {
+                        bolong[y][x] = binary[y][x];
+                        if (binary[y][x] && // if the pixel is black
+                                y > 0 && y < height - 1 && x > 0 && x < width - 1) {  // and not in boundary
+                            if (binary[y - 1][x] && binary[y + 1][x] && binary[y][x - 1] && binary[y][x + 1]) { // if all 4 neighbors is black
+                                bolong[y][x] = false;
+                            }
+                        }
                     }
                 }
+                
+            });
+        }
+        for (Thread thread : threads) {
+            thread.start();
+        }
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -289,33 +317,208 @@ public class Gambar {
         }
     }
 
-    private boolean getP(int x, int y, int p) {
-        int newX = p >= 3 && p <= 5 ? x + 1 : (p >= 7 && p <= 9 ? x - 1 : x);
-        int newY = p >= 5 && p <= 7 ? y + 1 : (p == 4 || p == 8 ? y : y - 1);
-        return tulang[newY][newX];
-    }
+    public final void updateBufferedImage() {
+        int[] pixelsGrayscale = new int[width * height * 3];
+        int[] pixelsEqualized = new int[width * height * 3];
+        int[] pixelsBinary = new int[width * height * 3];
+        int[] pixelsBolong = new int[width * height * 3];
+        int[] pixelsTulang = new int[width * height * 3];
 
-    private int getCountBlackNeighbor(int x, int y) {
-        int result = 0;
-        for (int p = 2; p <= 9; p++) {
-            result += getP(x, y, p) ? 1 : 0;
+        int[][] ranges = quartering(height);
+        Thread[] threads = new Thread[4];
+        for (int t = 0; t < threads.length; t++) {
+            int[] range = ranges[t];
+            threads[t] = new Thread(() -> {
+                
+                int p = range[0] * width * 3;
+                for (int y = range[0]; y <= range[1]; y++) {
+                    for (int x = 0; x < width; x++) {
+                        for (int j = 0; j < 3; j++) {
+                            pixelsGrayscale[p + j] = grayscale[y][x];
+                            pixelsEqualized[p + j] = equalized[y][x];
+                            pixelsBinary[p + j] = binary[y][x] ? 0 : 255;
+                            pixelsBolong[p + j] = bolong[y][x] ? 0 : 255;
+                            pixelsTulang[p + j] = tulang[y][x] ? 0 : 255;
+                        }
+                        
+                        p += 3;
+                    }
+                }
+                
+            });
         }
-        return result;
-    }
-
-    private int getWBTrans(int x, int y) {
-        int result = 0;
-        for (int p = 2; p <= 9; p++) {
-            if (p == 9) {
-                result += !getP(x, y, 9) && getP(x, y, 2) ? 1 : 0;
-            } else {
-                result += !getP(x, y, p) && getP(x, y, p + 1) ? 1 : 0;
+        for (Thread thread : threads) {
+            thread.start();
+        }
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+
+        biGrayscale.getRaster().setPixels(0, 0, width, height, pixelsGrayscale);
+        biEqualized.getRaster().setPixels(0, 0, width, height, pixelsEqualized);
+        biBinary.getRaster().setPixels(0, 0, width, height, pixelsBinary);
+        biBolong.getRaster().setPixels(0, 0, width, height, pixelsBolong);
+        biTulang.getRaster().setPixels(0, 0, width, height, pixelsTulang);
+    }
+
+    public static BufferedImage toBufferedImage(int[][] grayscale) {
+        int height = grayscale.length;
+        int width = grayscale[0].length;
+        
+        int[] pixels = new int[width * height * 3];
+        
+        int[][] ranges = quartering(height);
+        Thread[] threads = new Thread[4];
+        for (int t = 0; t < threads.length; t++) {
+            int[] range = ranges[t];
+            threads[t] = new Thread(() -> {
+                
+                int p = range[0] * width * 3;
+                for (int y = range[0]; y <= range[1]; y++) {
+                    for (int x = 0; x < width; x++) {
+                        for (int j = 0; j < 3; j++) {
+                            pixels[p + j] = grayscale[y][x];
+                        }
+                        
+                        p += 3;
+                    }
+                }
+                
+            });
+        }
+        for (Thread thread : threads) {
+            thread.start();
+        }
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        BufferedImage result = new BufferedImage(width, height, TYPE_INT_RGB);
+        result.getRaster().setPixels(0, 0, width, height, pixels);
         return result;
     }
 
-    public final void updateBufferedImage() {
+    // <editor-fold defaultstate="collapsed" desc="Non-threading methods">
+    
+    private void readNonThreading() {
+        countColor = 0;
+        boolean[][][] flagColors = new boolean[256][256][256];
+
+        // scanline
+        WritableRaster raster = biOriginal.getRaster();
+        int[] pixels = raster.getPixels(0, 0, width, height, (int[]) null);
+        int x = 0, y = 0;
+        int r, g, b, gray;
+        for (int i = 0; i < pixels.length; i += 3) {
+            r = pixels[i];
+            g = pixels[i + 1];
+            b = pixels[i + 2];
+
+            // set countColor
+            if (!flagColors[r][g][b]) {
+                flagColors[r][g][b] = true;
+                countColor += 1;
+            }
+
+            gray = (int) Math.round((r + g + b + 0.0) / 3);
+            grayscale[y][x] = gray;
+
+            // set histogram
+            histogram.r[r] += 1;
+            histogram.g[g] += 1;
+            histogram.b[b] += 1;
+            histogram.gray[gray] += 1;
+
+            x += 1;
+            if (x == width) {
+                x = 0;
+                y += 1;
+            }
+        }
+    }
+
+    public final void equalizeNonThreading(int from, int to) {
+        class Cdf {
+
+            public int cumm;
+            public int scaled;
+
+            public Cdf(int _cumm, int _scaled) {
+                cumm = _cumm;
+                scaled = _scaled;
+            }
+        }
+
+        // create LUT
+        int countPixel = height * width;
+        int fromCdf = histogram.gray[from];
+        int cumm = 0;
+        int h;
+
+        int range = to - from + 1;
+        Cdf[] cdf = new Cdf[range];
+        for (int i = 0; i < range; i++) {
+            cumm += histogram.gray[i + from];
+            h = (int) Math.round(255.0 * (cumm - fromCdf) / (countPixel - fromCdf));
+            cdf[i] = new Cdf(cumm, h);
+        }
+
+        // reset
+        for (int i = 0; i < 256; i++) {
+            histogram.equalized[i] = 0;
+        }
+
+        // create image
+        int colorNew;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                // convert to scale
+                if (grayscale[y][x] < from) {
+                    colorNew = 0;
+                } else if (grayscale[y][x] > to) {
+                    colorNew = 255;
+                } else {
+                    colorNew = cdf[grayscale[y][x] - from].scaled;
+                }
+                equalized[y][x] = colorNew;
+
+                // get histogram
+                histogram.equalized[colorNew] += 1;
+            }
+        }
+    }
+
+    public void binarizationNonThreading(int threshold) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                binary[y][x] = grayscale[y][x] < threshold;
+            }
+        }
+    }
+
+    public final void bolonginNonThreading() {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                bolong[y][x] = binary[y][x];
+                if (binary[y][x] && // if the pixel is black
+                        y > 0 && y < height - 1 && x > 0 && x < width - 1) {  // and not in boundary
+                    if (binary[y - 1][x] && binary[y + 1][x] && binary[y][x - 1] && binary[y][x + 1]) { // if all 4 neighbors is black
+                        bolong[y][x] = false;
+                    }
+                }
+            }
+        }
+    }
+
+    public final void updateBufferedImageNonThreading() {
         int[] pixelsGrayscale = new int[width * height * 3];
         int[] pixelsEqualized = new int[width * height * 3];
         int[] pixelsBinary = new int[width * height * 3];
@@ -345,4 +548,103 @@ public class Gambar {
         biBolong.getRaster().setPixels(0, 0, width, height, pixelsBolong);
         biTulang.getRaster().setPixels(0, 0, width, height, pixelsTulang);
     }
+
+    public static BufferedImage toBufferedImageNonThreading(int[][] grayscale) {
+        int height = grayscale.length;
+        int width = grayscale[0].length;
+
+        int[] pixels = new int[width * height * 3];
+        int x = 0, y = 0;
+        for (int i = 0; i < pixels.length; i += 3) {
+            for (int j = 0; j < 3; j++) {
+                pixels[i + j] = grayscale[y][x];
+            }
+
+            x += 1;
+            if (x == width) {
+                x = 0;
+                y += 1;
+            }
+        }
+
+        BufferedImage result = new BufferedImage(width, height, TYPE_INT_RGB);
+        result.getRaster().setPixels(0, 0, width, height, pixels);
+        return result;
+    }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Helpers">
+    
+    private int otsu() {
+        int total = width * height;
+        float sum = 0, sumB = 0;
+        float wB = 0, wF;
+        float varMax = 0;
+        int threshold = 0;
+
+        for (int i = 0; i < 256; i++) {
+            sum += i * histogram.gray[i];
+        }
+        for (int i = 0; i < 256; i++) {
+            wB += histogram.gray[i];
+            if (wB == 0) {
+                continue;
+            }
+
+            wF = total - wB;
+            if (wF == 0) {
+                break;
+            }
+
+            sumB += i * histogram.gray[i];
+            float mB = sumB / wB;
+            float mF = (sum - sumB) / wF;
+            float varBetween = wB * wF * (mB - mF) * (mB - mF);
+            if (varBetween > varMax) {
+                varMax = varBetween;
+                threshold = i;
+            }
+        }
+
+        return threshold;
+    }
+
+    private boolean getP(int x, int y, int p) {
+        int newX = p >= 3 && p <= 5 ? x + 1 : (p >= 7 && p <= 9 ? x - 1 : x);
+        int newY = p >= 5 && p <= 7 ? y + 1 : (p == 4 || p == 8 ? y : y - 1);
+        return tulang[newY][newX];
+    }
+
+    private int getCountBlackNeighbor(int x, int y) {
+        int result = 0;
+        for (int p = 2; p <= 9; p++) {
+            result += getP(x, y, p) ? 1 : 0;
+        }
+        return result;
+    }
+
+    private int getWBTrans(int x, int y) {
+        int result = 0;
+        for (int p = 2; p <= 9; p++) {
+            if (p == 9) {
+                result += !getP(x, y, 9) && getP(x, y, 2) ? 1 : 0;
+            } else {
+                result += !getP(x, y, p) && getP(x, y, p + 1) ? 1 : 0;
+            }
+        }
+        return result;
+    }
+    
+    public static int[][] quartering(int height) {
+        int quarter = height / 4;
+        return new int[][]{
+            new int[]{0, quarter},
+            new int[]{quarter + 1, quarter * 2},
+            new int[]{(quarter * 2) + 1, quarter * 3},
+            new int[]{(quarter * 3) + 1, height - 1}
+        };
+    }
+
+    // </editor-fold>
 }
