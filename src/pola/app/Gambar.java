@@ -7,8 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /**
@@ -71,7 +69,7 @@ public class Gambar {
         for (int t = 0; t < runnables.length; t++) {
             int[] range = ranges[t];
             runnables[t] = () -> {
-                
+
                 int r, g, b, gray, p = range[0] * width * 3;
                 for (int y = range[0]; y <= range[1]; y++) {
                     for (int x = 0; x < width; x++) {
@@ -134,7 +132,7 @@ public class Gambar {
         for (int r = 0; r < runnables.length; r++) {
             int[] range = ranges[r];
             runnables[r] = () -> {
-                
+
                 int colorNew;
                 for (int y = range[0]; y <= range[1]; y++) {
                     for (int x = 0; x < width; x++) {
@@ -170,7 +168,7 @@ public class Gambar {
         for (int r = 0; r < runnables.length; r++) {
             int[] range = ranges[r];
             runnables[r] = () -> {
-                
+
                 for (int y = range[0]; y <= range[1]; y++) {
                     for (int x = 0; x < width; x++) {
                         binary[y][x] = grayscale[y][x] < threshold;
@@ -188,7 +186,7 @@ public class Gambar {
         for (int r = 0; r < runnables.length; r++) {
             int[] range = ranges[r];
             runnables[r] = () -> {
-                
+
                 for (int y = range[0]; y <= range[1]; y++) {
                     for (int x = 0; x < width; x++) {
                         bolong[y][x] = binary[y][x];
@@ -293,7 +291,7 @@ public class Gambar {
         for (int r = 0; r < runnables.length; r++) {
             int[] range = ranges[r];
             runnables[r] = () -> {
-                
+
                 int p = range[0] * width * 3;
                 for (int y = range[0]; y <= range[1]; y++) {
                     for (int x = 0; x < width; x++) {
@@ -304,7 +302,7 @@ public class Gambar {
                             pixelsBolong[p + j] = bolong[y][x] ? 0 : 255;
                             pixelsTulang[p + j] = tulang[y][x] ? 0 : 255;
                         }
-                        
+
                         p += 3;
                     }
                 }
@@ -323,22 +321,22 @@ public class Gambar {
     public static BufferedImage toBufferedImage(int[][] grayscale) {
         int height = grayscale.length;
         int width = grayscale[0].length;
-        
+
         int[] pixels = new int[width * height * 3];
-        
+
         int[][] ranges = Threading.quartering(height);
         Runnable[] runnables = new Runnable[ranges.length];
         for (int r = 0; r < runnables.length; r++) {
             int[] range = ranges[r];
             runnables[r] = () -> {
-                
+
                 int p = range[0] * width * 3;
                 for (int y = range[0]; y <= range[1]; y++) {
                     for (int x = 0; x < width; x++) {
                         for (int j = 0; j < 3; j++) {
                             pixels[p + j] = grayscale[y][x];
                         }
-                        
+
                         p += 3;
                     }
                 }
@@ -353,7 +351,6 @@ public class Gambar {
     }
 
     // <editor-fold defaultstate="collapsed" desc="Non-threading methods">
-    
     private void readNonThreading() {
         countColor = 0;
         boolean[][][] flagColors = new boolean[256][256][256];
@@ -517,11 +514,9 @@ public class Gambar {
         result.getRaster().setPixels(0, 0, width, height, pixels);
         return result;
     }
-    
+
     // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc="Helpers">
-    
     private int otsu() {
         int total = width * height;
         float sum = 0, sumB = 0;
