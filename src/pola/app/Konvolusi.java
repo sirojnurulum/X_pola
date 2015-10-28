@@ -1,8 +1,5 @@
 package pola.app;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author Dimas
@@ -15,11 +12,11 @@ public class Konvolusi {
 
         int[][] result = new int[height][width];
 
-        int[][] ranges = Gambar.quartering(height);
-        Thread[] threads = new Thread[4];
-        for (int t = 0; t < threads.length; t++) {
-            int[] range = ranges[t];
-            threads[t] = new Thread(() -> {
+        int[][] ranges = Threading.quartering(height);
+        Runnable[] runnables = new Runnable[ranges.length];
+        for (int r = 0; r < runnables.length; r++) {
+            int[] range = ranges[r];
+            runnables[r] = () -> {
 
                 int ymin, ymax, xmin, xmax, total, count;
                 for (int y = range[0]; y <= range[1]; y++) {
@@ -41,18 +38,9 @@ public class Konvolusi {
                     }
                 }
 
-            });
+            };
         }
-        for (Thread thread : threads) {
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        Threading.runRunnables(runnables);
 
         return result;
     }
@@ -78,13 +66,13 @@ public class Konvolusi {
         int[][] result = new int[height][width];
         int[] intervalMinMax = new int[2];
 
-        int[][] ranges = Gambar.quartering(height);
+        int[][] ranges = Threading.quartering(height);
         ranges[0][0] = 1;
         ranges[3][1] = height - 2;
-        Thread[] threads = new Thread[4];
-        for (int t = 0; t < threads.length; t++) {
-            int[] range = ranges[t];
-            threads[t] = new Thread(() -> {
+        Runnable[] runnables = new Runnable[ranges.length];
+        for (int r = 0; r < runnables.length; r++) {
+            int[] range = ranges[r];
+            runnables[r] = () -> {
 
                 int kali, value;
                 for (int y = range[0]; y <= range[1]; y++) {
@@ -104,25 +92,16 @@ public class Konvolusi {
                     }
                 }
 
-            });
+            };
         }
-        for (Thread thread : threads) {
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Konvolusi.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        Threading.runRunnables(runnables);
 
         int interval = intervalMinMax[1] - intervalMinMax[0];
 
-        threads = new Thread[4];
-        for (int t = 0; t < threads.length; t++) {
-            int[] range = ranges[t];
-            threads[t] = new Thread(() -> {
+        runnables = new Runnable[ranges.length];
+        for (int r = 0; r < runnables.length; r++) {
+            int[] range = ranges[r];
+            runnables[r] = () -> {
 
                 for (int y = range[0]; y <= range[1]; y++) {
                     for (int x = 1; x < width - 1; x++) {
@@ -130,18 +109,9 @@ public class Konvolusi {
                     }
                 }
 
-            });
+            };
         }
-        for (Thread thread : threads) {
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Konvolusi.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        Threading.runRunnables(runnables);
 
         return result;
     }

@@ -66,11 +66,11 @@ public class Gambar {
         WritableRaster raster = biOriginal.getRaster();
         int[] pixels = raster.getPixels(0, 0, width, height, (int[]) null);
 
-        int[][] ranges = quartering(height);
-        Thread[] threads = new Thread[4];
-        for (int t = 0; t < threads.length; t++) {
+        int[][] ranges = Threading.quartering(height);
+        Runnable[] runnables = new Runnable[ranges.length];
+        for (int t = 0; t < runnables.length; t++) {
             int[] range = ranges[t];
-            threads[t] = new Thread(() -> {
+            runnables[t] = () -> {
                 
                 int r, g, b, gray, p = range[0] * width * 3;
                 for (int y = range[0]; y <= range[1]; y++) {
@@ -91,19 +91,10 @@ public class Gambar {
                         p += 3;
                     }
                 }
-                
-            });
+
+            };
         }
-        for (Thread thread : threads) {
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        Threading.runRunnables(runnables);
     }
 
     public final void equalize(int from, int to) {
@@ -138,11 +129,11 @@ public class Gambar {
         }
 
         // create image
-        int[][] ranges = quartering(height);
-        Thread[] threads = new Thread[4];
-        for (int t = 0; t < threads.length; t++) {
-            int[] range = ranges[t];
-            threads[t] = new Thread(() -> {
+        int[][] ranges = Threading.quartering(height);
+        Runnable[] runnables = new Runnable[ranges.length];
+        for (int r = 0; r < runnables.length; r++) {
+            int[] range = ranges[r];
+            runnables[r] = () -> {
                 
                 int colorNew;
                 for (int y = range[0]; y <= range[1]; y++) {
@@ -161,19 +152,10 @@ public class Gambar {
                         histogram.equalized[colorNew] += 1;
                     }
                 }
-                
-            });
+
+            };
         }
-        for (Thread thread : threads) {
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        Threading.runRunnables(runnables);
     }
 
     public final void binarization() {
@@ -183,38 +165,29 @@ public class Gambar {
     }
 
     public final void binarization(int threshold) {
-        int[][] ranges = quartering(height);
-        Thread[] threads = new Thread[4];
-        for (int t = 0; t < threads.length; t++) {
-            int[] range = ranges[t];
-            threads[t] = new Thread(() -> {
+        int[][] ranges = Threading.quartering(height);
+        Runnable[] runnables = new Runnable[ranges.length];
+        for (int r = 0; r < runnables.length; r++) {
+            int[] range = ranges[r];
+            runnables[r] = () -> {
                 
                 for (int y = range[0]; y <= range[1]; y++) {
                     for (int x = 0; x < width; x++) {
                         binary[y][x] = grayscale[y][x] < threshold;
                     }
                 }
-                
-            });
+
+            };
         }
-        for (Thread thread : threads) {
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        Threading.runRunnables(runnables);
     }
 
     public final void bolongin() {
-        int[][] ranges = quartering(height);
-        Thread[] threads = new Thread[4];
-        for (int t = 0; t < threads.length; t++) {
-            int[] range = ranges[t];
-            threads[t] = new Thread(() -> {
+        int[][] ranges = Threading.quartering(height);
+        Runnable[] runnables = new Runnable[ranges.length];
+        for (int r = 0; r < runnables.length; r++) {
+            int[] range = ranges[r];
+            runnables[r] = () -> {
                 
                 for (int y = range[0]; y <= range[1]; y++) {
                     for (int x = 0; x < width; x++) {
@@ -227,19 +200,10 @@ public class Gambar {
                         }
                     }
                 }
-                
-            });
+
+            };
         }
-        for (Thread thread : threads) {
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        Threading.runRunnables(runnables);
     }
 
     public final void tulangin() {
@@ -324,11 +288,11 @@ public class Gambar {
         int[] pixelsBolong = new int[width * height * 3];
         int[] pixelsTulang = new int[width * height * 3];
 
-        int[][] ranges = quartering(height);
-        Thread[] threads = new Thread[4];
-        for (int t = 0; t < threads.length; t++) {
-            int[] range = ranges[t];
-            threads[t] = new Thread(() -> {
+        int[][] ranges = Threading.quartering(height);
+        Runnable[] runnables = new Runnable[ranges.length];
+        for (int r = 0; r < runnables.length; r++) {
+            int[] range = ranges[r];
+            runnables[r] = () -> {
                 
                 int p = range[0] * width * 3;
                 for (int y = range[0]; y <= range[1]; y++) {
@@ -344,19 +308,10 @@ public class Gambar {
                         p += 3;
                     }
                 }
-                
-            });
+
+            };
         }
-        for (Thread thread : threads) {
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        Threading.runRunnables(runnables);
 
         biGrayscale.getRaster().setPixels(0, 0, width, height, pixelsGrayscale);
         biEqualized.getRaster().setPixels(0, 0, width, height, pixelsEqualized);
@@ -371,11 +326,11 @@ public class Gambar {
         
         int[] pixels = new int[width * height * 3];
         
-        int[][] ranges = quartering(height);
-        Thread[] threads = new Thread[4];
-        for (int t = 0; t < threads.length; t++) {
-            int[] range = ranges[t];
-            threads[t] = new Thread(() -> {
+        int[][] ranges = Threading.quartering(height);
+        Runnable[] runnables = new Runnable[ranges.length];
+        for (int r = 0; r < runnables.length; r++) {
+            int[] range = ranges[r];
+            runnables[r] = () -> {
                 
                 int p = range[0] * width * 3;
                 for (int y = range[0]; y <= range[1]; y++) {
@@ -387,19 +342,10 @@ public class Gambar {
                         p += 3;
                     }
                 }
-                
-            });
+
+            };
         }
-        for (Thread thread : threads) {
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Gambar.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        Threading.runRunnables(runnables);
 
         BufferedImage result = new BufferedImage(width, height, TYPE_INT_RGB);
         result.getRaster().setPixels(0, 0, width, height, pixels);
@@ -634,16 +580,6 @@ public class Gambar {
             }
         }
         return result;
-    }
-    
-    public static int[][] quartering(int height) {
-        int quarter = height / 4;
-        return new int[][]{
-            new int[]{0, quarter},
-            new int[]{quarter + 1, quarter * 2},
-            new int[]{(quarter * 2) + 1, quarter * 3},
-            new int[]{(quarter * 3) + 1, height - 1}
-        };
     }
 
     // </editor-fold>
