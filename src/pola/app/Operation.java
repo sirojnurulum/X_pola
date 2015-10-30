@@ -784,4 +784,8 @@ public class Operation {
         return tmp;
     }
 
+    public int calculateSobel() {
+        return 0;
+    }
+
 }

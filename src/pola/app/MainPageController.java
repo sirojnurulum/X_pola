@@ -106,6 +106,12 @@ public class MainPageController implements Initializable {
     ImageView ivBureminOri;
     @FXML
     ImageView ivBureminResult;
+    @FXML
+    Tab tabSobel;
+    @FXML
+    ImageView ivSobelOri;
+    @FXML
+    ImageView ivSobelResult;
     //
     File fileImageOri;
     Gambar gambar;
@@ -125,19 +131,8 @@ public class MainPageController implements Initializable {
             huruf = new Huruf();
         }
         for (ImageView iv : new ImageView[]{
-            ivMainOri,
-            ivMainGray,
-            ivMainGrayEq,
-            ivMainBw,
-            ivHistogram,
-            ivEqHistogram,
-            ivChainCode,
-            ivChainCodeBolong,
-            ivKodeBelok,
-            ivKodeBelokBolong,
-            ivTulangBw,
-            ivTulangResult,
-            ivHuruf, ivBureminOri, ivBureminResult}) {
+            ivMainOri, ivMainGray, ivMainGrayEq, ivMainBw, ivHistogram, ivEqHistogram, ivChainCode, ivChainCodeBolong, ivKodeBelok, ivKodeBelokBolong, ivTulangBw, ivTulangResult, ivHuruf,
+            ivBureminOri, ivBureminResult, ivSobelOri, ivSobelResult}) {
             iv.setUserData(new double[]{iv.getFitWidth(), iv.getFitHeight()});
         }
 
@@ -158,6 +153,8 @@ public class MainPageController implements Initializable {
                 openTabHuruf();
             } else if (newValue == tabBuremin) {
                 openTabBuremin();
+            } else if (newValue == tabSobel) {
+                openTabSobel();
             }
         });
     }
@@ -360,14 +357,13 @@ public class MainPageController implements Initializable {
         openTabTulang();
     }
 
-    BufferedImage x;
-
     private void openTabBuremin() {
         setIvImage(ivBureminOri, gambar.biOriginal);
-        if (x == null) {
-            x = Operation.getOp().buremin(gambar.biOriginal);
-        }
-        setIvImage(ivBureminResult, x);
+        setIvImage(ivBureminResult, Operation.getOp().buremin(gambar.biOriginal));
+    }
+
+    private void openTabSobel() {
+
     }
 
 }
