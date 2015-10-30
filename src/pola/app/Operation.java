@@ -7,7 +7,9 @@ package pola.app;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -68,42 +70,6 @@ public class Operation {
             try {
                 if (first) {
                     first = false;
-//                    if (tmp.getRGB(current.x + 1, current.y) == -16777216) {
-//                        data.add("0");
-//                        current.setXY(current.x + 1, current.y);
-//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                    } else if (tmp.getRGB(current.x + 1, current.y + 1) == -16777216) {
-//                        data.add("1");
-//                        current.setXY(current.x + 1, current.y + 1);
-//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                    } else if (tmp.getRGB(current.x, current.y + 1) == -16777216) {
-//                        data.add("2");
-//                        current.setXY(current.x, current.y + 1);
-//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                    } else if (tmp.getRGB(current.x - 1, current.y + 1) == -16777216) {
-//                        data.add("3");
-//                        current.setXY(current.x - 1, current.y + 1);
-//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                    } else if (tmp.getRGB(current.x - 1, current.y) == -16777216) {
-//                        data.add("4");
-//                        current.setXY(current.x - 1, current.y);
-//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                    } else if (tmp.getRGB(current.x - 1, current.y - 1) == -16777216) {
-//                        data.add("5");
-//                        current.setXY(current.x - 1, current.y - 1);
-//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                    } else if (tmp.getRGB(current.x, current.y - 1) == -16777216) {
-//                        data.add("6");
-//                        current.setXY(current.x, current.y - 1);
-//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                    } else if (tmp.getRGB(current.x + 1, current.y - 1) == -16777216) {
-//                        data.add("7");
-//                        current.setXY(current.x + 1, current.y - 1);
-//                        tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                    } else {
-//                        run = false;
-//                    }
-                    //====
                     if (tmp.getRGB(current.x + 1, current.y) == -16777216) {
                         data.add("0");
                         current.setXY(current.x + 1, current.y);
@@ -143,42 +109,6 @@ public class Operation {
                     if (current.x == start.x && current.y == start.y) {
                         run = false;
                     } else {
-//                        if (tmp.getRGB(current.x + 1, current.y) == -16777216) {
-//                            data.add("0");
-//                            current.setXY(current.x + 1, current.y);
-//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                        } else if (tmp.getRGB(current.x + 1, current.y + 1) == -16777216) {
-//                            data.add("1");
-//                            current.setXY(current.x + 1, current.y + 1);
-//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                        } else if (tmp.getRGB(current.x, current.y + 1) == -16777216) {
-//                            data.add("2");
-//                            current.setXY(current.x, current.y + 1);
-//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                        } else if (tmp.getRGB(current.x - 1, current.y + 1) == -16777216) {
-//                            data.add("3");
-//                            current.setXY(current.x - 1, current.y + 1);
-//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                        } else if (tmp.getRGB(current.x - 1, current.y) == -16777216) {
-//                            data.add("4");
-//                            current.setXY(current.x - 1, current.y);
-//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                        } else if (tmp.getRGB(current.x - 1, current.y - 1) == -16777216) {
-//                            data.add("5");
-//                            current.setXY(current.x - 1, current.y - 1);
-//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                        } else if (tmp.getRGB(current.x, current.y - 1) == -16777216) {
-//                            data.add("6");
-//                            current.setXY(current.x, current.y - 1);
-//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                        } else if (tmp.getRGB(current.x + 1, current.y - 1) == -16777216) {
-//                            data.add("7");
-//                            current.setXY(current.x + 1, current.y - 1);
-//                            tmp.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                        } else {
-//                            run = false;
-//                        }
-                        //
                         if (tmp.getRGB(current.x + 1, current.y) == -16777216) {
                             data.add("0");
                             current.setXY(current.x + 1, current.y);
@@ -517,10 +447,10 @@ public class Operation {
             for (int j = 0; j < tmp.getHeight(); j++) {
                 if (tmp.getRGB(i, j) == -16777216) {
                     start.setXY(i, j);
-//                    if (getCountTatangga(tmp, start) < 2) {
-                    System.out.println("X:" + i + " Y:" + j);
-                    object.add(createChainCodeTulang(start, tmp));
-//                    }
+                    if (getCountTatangga(tmp, start) < 2) {
+                        System.out.println("X:" + i + " Y:" + j);
+                        object.add(createChainCodeTulang(start, tmp));
+                    }
                 }
             }
         }
@@ -533,42 +463,6 @@ public class Operation {
         boolean run = true;
         while (run) {
             try {
-//                if (tulang.getRGB(current.x + 1, current.y) == -16777216) {
-//                    data.add("0");
-//                    current.setXY(current.x + 1, current.y);
-//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                } else if (tulang.getRGB(current.x + 1, current.y + 1) == -16777216) {
-//                    data.add("1");
-//                    current.setXY(current.x + 1, current.y + 1);
-//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                } else if (tulang.getRGB(current.x, current.y + 1) == -16777216) {
-//                    data.add("2");
-//                    current.setXY(current.x, current.y + 1);
-//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                } else if (tulang.getRGB(current.x - 1, current.y + 1) == -16777216) {
-//                    data.add("3");
-//                    current.setXY(current.x - 1, current.y + 1);
-//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                } else if (tulang.getRGB(current.x - 1, current.y) == -16777216) {
-//                    data.add("4");
-//                    current.setXY(current.x - 1, current.y);
-//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                } else if (tulang.getRGB(current.x - 1, current.y - 1) == -16777216) {
-//                    data.add("5");
-//                    current.setXY(current.x - 1, current.y - 1);
-//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                } else if (tulang.getRGB(current.x, current.y - 1) == -16777216) {
-//                    data.add("6");
-//                    current.setXY(current.x, current.y - 1);
-//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                } else if (tulang.getRGB(current.x + 1, current.y - 1) == -16777216) {
-//                    data.add("7");
-//                    current.setXY(current.x + 1, current.y - 1);
-//                    tulang.setRGB(current.x, current.y, Color.WHITE.getRGB());
-//                } else {
-//                    run = false;
-//                }
-                //===
                 if (tulang.getRGB(current.x + 1, current.y) == -16777216) {
                     data.add("0");
                     current.setXY(current.x + 1, current.y);
@@ -651,6 +545,243 @@ public class Operation {
             q++;
         }
         return chain;
+    }
+
+    public int checkColor(int color) {
+        if (color >= 255) {
+            return 255;
+        } else {
+            return color;
+        }
+    }
+
+    public BufferedImage buremin(BufferedImage image) {
+        BufferedImage tmp = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        tmp.getGraphics().drawImage(image, 0, 0, null);
+        WritableRaster raster = tmp.getRaster();
+        int[] sample = new int[3];
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                if (y == 0) {
+                    if (x == 0) {
+                        int r = ((raster.getPixel(x, y, (int[]) null)[0])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x, y + 1, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x + 1, y + 1, (int[]) null)[0] * 4)) / 9;
+                        int g = ((raster.getPixel(x, y, (int[]) null)[1])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x, y + 1, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x + 1, y + 1, (int[]) null)[1] * 4)) / 9;
+                        int b = ((raster.getPixel(x, y, (int[]) null)[2])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x, y + 1, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x + 1, y + 1, (int[]) null)[2] * 4)) / 9;
+                        sample[0] = checkColor(r);
+                        sample[1] = checkColor(g);
+                        sample[2] = checkColor(b);
+                        raster.setPixel(x, y, sample);
+                    } else if (x == tmp.getWidth() - 1) {
+                        int r = ((raster.getPixel(x, y, (int[]) null)[0])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x, y + 1, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x - 1, y + 1, (int[]) null)[0] * 4)) / 9;
+                        int g = ((raster.getPixel(x, y, (int[]) null)[1])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x, y + 1, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x - 1, y + 1, (int[]) null)[1] * 4)) / 9;
+                        int b = ((raster.getPixel(x, y, (int[]) null)[2])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x, y + 1, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x - 1, y + 1, (int[]) null)[2] * 4)) / 9;
+                        sample[0] = checkColor(r);
+                        sample[1] = checkColor(g);
+                        sample[2] = checkColor(b);
+                        raster.setPixel(x, y, sample);
+                    } else {
+                        int r = ((raster.getPixel(x, y, (int[]) null)[0])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[0])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[0])
+                                + (raster.getPixel(x - 1, y + 1, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x + 1, y + 1, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x, y + 1, (int[]) null)[0] * 2))
+                                / 9;
+                        int g = ((raster.getPixel(x, y, (int[]) null)[1])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[1])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[1])
+                                + (raster.getPixel(x - 1, y + 1, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x + 1, y + 1, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x, y + 1, (int[]) null)[1] * 2))
+                                / 9;
+                        int b = ((raster.getPixel(x, y, (int[]) null)[2])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[2])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[2])
+                                + (raster.getPixel(x - 1, y + 1, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x + 1, y + 1, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x, y + 1, (int[]) null)[2] * 2))
+                                / 9;
+                        sample[0] = checkColor(r);
+                        sample[1] = checkColor(g);
+                        sample[2] = checkColor(b);
+                        raster.setPixel(x, y, sample);
+                    }
+                } else if (y == tmp.getHeight() - 1) {
+                    if (x == 0) {
+                        int r = ((raster.getPixel(x, y, (int[]) null)[0])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x, y - 1, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x + 1, y - 1, (int[]) null)[0] * 4)) / 9;
+                        int g = ((raster.getPixel(x, y, (int[]) null)[1])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x, y - 1, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x + 1, y - 1, (int[]) null)[1] * 4)) / 9;
+                        int b = ((raster.getPixel(x, y, (int[]) null)[2])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x, y - 1, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x + 1, y - 1, (int[]) null)[2] * 4)) / 9;
+                        sample[0] = checkColor(r);
+                        sample[1] = checkColor(g);
+                        sample[2] = checkColor(b);
+                        raster.setPixel(x, y, sample);
+                    } else if (x == tmp.getWidth() - 1) {
+                        int r = ((raster.getPixel(x, y, (int[]) null)[0])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x, y - 1, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x - 1, y - 1, (int[]) null)[0] * 4)) / 9;
+                        int g = ((raster.getPixel(x, y, (int[]) null)[1])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x, y - 1, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x - 1, y - 1, (int[]) null)[1] * 4)) / 9;
+                        int b = ((raster.getPixel(x, y, (int[]) null)[2])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x, y - 1, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x - 1, y - 1, (int[]) null)[2] * 4)) / 9;
+                        sample[0] = checkColor(r);
+                        sample[1] = checkColor(g);
+                        sample[2] = checkColor(b);
+                        raster.setPixel(x, y, sample);
+                    } else {
+                        int r = ((raster.getPixel(x, y, (int[]) null)[0])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[0])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[0])
+                                + (raster.getPixel(x - 1, y - 1, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x + 1, y - 1, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x, y - 1, (int[]) null)[0] * 2))
+                                / 9;
+                        int g = ((raster.getPixel(x, y, (int[]) null)[1])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[1])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[1])
+                                + (raster.getPixel(x - 1, y - 1, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x + 1, y - 1, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x, y - 1, (int[]) null)[1] * 2))
+                                / 9;
+                        int b = ((raster.getPixel(x, y, (int[]) null)[2])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[2])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[2])
+                                + (raster.getPixel(x - 1, y - 1, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x + 1, y - 1, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x, y - 1, (int[]) null)[2] * 2))
+                                / 9;
+                        sample[0] = checkColor(r);
+                        sample[1] = checkColor(g);
+                        sample[2] = checkColor(b);
+                        raster.setPixel(x, y, sample);
+                    }
+                } else {
+                    if (x == 0) {
+                        int r = ((raster.getPixel(x, y, (int[]) null)[0])
+                                + (raster.getPixel(x, y - 1, (int[]) null)[0])
+                                + (raster.getPixel(x, y + 1, (int[]) null)[0])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x + 1, y + 1, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x + 1, y - 1, (int[]) null)[0] * 2))
+                                / 9;
+                        int g = ((raster.getPixel(x, y, (int[]) null)[1])
+                                + (raster.getPixel(x, y - 1, (int[]) null)[1])
+                                + (raster.getPixel(x, y + 1, (int[]) null)[1])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x + 1, y + 1, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x + 1, y - 1, (int[]) null)[1] * 2))
+                                / 9;
+                        int b = ((raster.getPixel(x, y, (int[]) null)[2])
+                                + (raster.getPixel(x, y - 1, (int[]) null)[2])
+                                + (raster.getPixel(x, y + 1, (int[]) null)[2])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x + 1, y + 1, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x + 1, y - 1, (int[]) null)[2] * 2))
+                                / 9;
+                        sample[0] = checkColor(r);
+                        sample[1] = checkColor(g);
+                        sample[2] = checkColor(b);
+                        raster.setPixel(x, y, sample);
+                    } else if (x == tmp.getWidth() - 1) {
+                        int r = ((raster.getPixel(x, y, (int[]) null)[0])
+                                + (raster.getPixel(x, y - 1, (int[]) null)[0])
+                                + (raster.getPixel(x, y + 1, (int[]) null)[0])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x - 1, y + 1, (int[]) null)[0] * 2)
+                                + (raster.getPixel(x - 1, y - 1, (int[]) null)[0] * 2))
+                                / 9;
+                        int g = ((raster.getPixel(x, y, (int[]) null)[1])
+                                + (raster.getPixel(x, y - 1, (int[]) null)[1])
+                                + (raster.getPixel(x, y + 1, (int[]) null)[1])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x - 1, y + 1, (int[]) null)[1] * 2)
+                                + (raster.getPixel(x - 1, y - 1, (int[]) null)[1] * 2))
+                                / 9;
+                        int b = ((raster.getPixel(x, y, (int[]) null)[2])
+                                + (raster.getPixel(x, y - 1, (int[]) null)[2])
+                                + (raster.getPixel(x, y + 1, (int[]) null)[2])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x - 1, y + 1, (int[]) null)[2] * 2)
+                                + (raster.getPixel(x - 1, y - 1, (int[]) null)[2] * 2))
+                                / 9;
+                        sample[0] = checkColor(r);
+                        sample[1] = checkColor(g);
+                        sample[2] = checkColor(b);
+                        raster.setPixel(x, y, sample);
+                    } else {
+                        int r = ((raster.getPixel(x, y, (int[]) null)[0])
+                                + (raster.getPixel(x, y - 1, (int[]) null)[0])
+                                + (raster.getPixel(x, y + 1, (int[]) null)[0])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[0])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[0])
+                                + (raster.getPixel(x + 1, y + 1, (int[]) null)[0])
+                                + (raster.getPixel(x + 1, y - 1, (int[]) null)[0])
+                                + (raster.getPixel(x - 1, y - 1, (int[]) null)[0])
+                                + (raster.getPixel(x - 1, y + 1, (int[]) null)[0]))
+                                / 9;
+                        int g = ((raster.getPixel(x, y, (int[]) null)[1])
+                                + (raster.getPixel(x, y - 1, (int[]) null)[1])
+                                + (raster.getPixel(x, y + 1, (int[]) null)[1])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[1])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[1])
+                                + (raster.getPixel(x + 1, y + 1, (int[]) null)[1])
+                                + (raster.getPixel(x + 1, y - 1, (int[]) null)[1])
+                                + (raster.getPixel(x - 1, y - 1, (int[]) null)[1])
+                                + (raster.getPixel(x - 1, y + 1, (int[]) null)[1]))
+                                / 9;
+                        int b = ((raster.getPixel(x, y, (int[]) null)[2])
+                                + (raster.getPixel(x, y - 1, (int[]) null)[2])
+                                + (raster.getPixel(x, y + 1, (int[]) null)[2])
+                                + (raster.getPixel(x - 1, y, (int[]) null)[2])
+                                + (raster.getPixel(x + 1, y, (int[]) null)[2])
+                                + (raster.getPixel(x + 1, y + 1, (int[]) null)[2])
+                                + (raster.getPixel(x + 1, y - 1, (int[]) null)[2])
+                                + (raster.getPixel(x - 1, y - 1, (int[]) null)[2])
+                                + (raster.getPixel(x - 1, y + 1, (int[]) null)[2]))
+                                / 9;
+                        sample[0] = checkColor(r);
+                        sample[1] = checkColor(g);
+                        sample[2] = checkColor(b);
+                        raster.setPixel(x, y, sample);
+                    }
+                }
+            }
+            tmp.getRaster().setPixels(0, 0, tmp.getWidth(), tmp.getHeight(), raster.getPixels(0, 0, tmp.getWidth(), tmp.getHeight(), (int[]) null));
+        }
+        System.out.println(Integer.sum(5, 5));
+        System.out.println(Arrays.toString(raster.getPixels(0, 0, tmp.getWidth(), tmp.getHeight(), (int[]) null)));
+        return tmp;
     }
 
 }

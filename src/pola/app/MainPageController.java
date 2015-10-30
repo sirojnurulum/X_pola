@@ -100,6 +100,12 @@ public class MainPageController implements Initializable {
     ImageView ivHuruf;
     @FXML
     Label textHuruf;
+    @FXML
+    Tab tabBuremin;
+    @FXML
+    ImageView ivBureminOri;
+    @FXML
+    ImageView ivBureminResult;
     //
     File fileImageOri;
     Gambar gambar;
@@ -131,12 +137,12 @@ public class MainPageController implements Initializable {
             ivKodeBelokBolong,
             ivTulangBw,
             ivTulangResult,
-            ivHuruf}) {
+            ivHuruf, ivBureminOri, ivBureminResult}) {
             iv.setUserData(new double[]{iv.getFitWidth(), iv.getFitHeight()});
         }
-
+        
         setTabAccess(false);
-
+        
         tab.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) -> {
             if (newValue == tabHistogram) {
                 openTabHistogram();
@@ -150,15 +156,17 @@ public class MainPageController implements Initializable {
                 openTabTulang();
             } else if (newValue == tabHuruf) {
                 openTabHuruf();
+            } else if (newValue == tabBuremin) {
+                openTabBuremin();
             }
         });
     }
     private FXMain main;
-
+    
     public void setMain(FXMain main) {
         this.main = main;
     }
-
+    
     private void setTabAccess(boolean active) {
         tabChainCode.setDisable(!active);
         tabEkualisasiHistogram.setDisable(!active);
@@ -166,14 +174,15 @@ public class MainPageController implements Initializable {
         tabKodeBelok.setDisable(!active);
         tabTulang.setDisable(!active);
         tabHuruf.setDisable(!active);
+        tabBuremin.setDisable(!active);
     }
-
+    
     @FXML
     public void chooseImage() throws IOException {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG"), new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG"));
         fileImageOri = new FileChooser().showOpenDialog(main.getPrimaryStage());
-
+        
         if (fileImageOri != null) {
             // reset
             chartHistogram.getData().clear();
@@ -181,12 +190,12 @@ public class MainPageController implements Initializable {
             chainData = null;
             belokData = null;
             chainTulangData = null;
-
+            
             gambar = new Gambar(fileImageOri);
-
+            
             setImageView();
             setTabAccess(true);
-            
+
             // konvolusi: samar
             new Thread(() -> {
                 BufferedImage samar = Gambar.toBufferedImage(Konvolusi.samarkan(gambar.grayscale));
@@ -214,19 +223,55 @@ public class MainPageController implements Initializable {
             main.showAlert("Error", "File Chooser", "No Picture Selected !!!", Alert.AlertType.INFORMATION);
         }
     }
+    
+    @FXML
+    public void sliderListener() {
+        int valFrom = (int) Math.round(sliderEqHistogramFrom.getValue());
+        int valTo = (int) Math.round(sliderEqHistogramTo.getValue());
+        int from = valFrom <= valTo ? valFrom : valTo;
+        int to = valFrom <= valTo ? valTo : valFrom;
+        
+        chartEqHistogram.getData().clear();
+        openTabEkualisasiHistogram(from, to);
+    }
+    
+    private void setIvImage(ImageView iv, BufferedImage image) {
+        // reset
+        double[] size = (double[]) iv.getUserData();
+        iv.setFitWidth(size[0]);
+        iv.setFitHeight(size[1]);
 
+        // set
+        if (image.getWidth() > iv.getFitWidth() || image.getHeight() > iv.getFitHeight()) {
+            iv.setImage(SwingFXUtils.toFXImage(image, null));
+        } else {
+            iv.setImage(SwingFXUtils.toFXImage(image, null));
+            iv.setFitHeight(image.getHeight());
+            iv.setFitWidth(image.getWidth());
+        }
+    }
+    
+    private void setImageView() {
+        setIvImage(ivMainOri, gambar.biOriginal);
+        setIvImage(ivMainGray, gambar.biGrayscale);
+        //setIvImage(ivMainGrayEq, gambar.biEqualized); // diganti dengan konvolusi samarkan
+        //setIvImage(ivMainBw, gambar.biBinary); // diganti dengan konvolusi sobel
+        setIvImage(ivHistogram, gambar.biOriginal);
+        setIvImage(ivTulangBw, gambar.biOriginal);
+    }
+    
     private void openTabHistogram() {
         if (chartHistogram.getData().size() == 0) {
             XYChart.Series seriesR = new XYChart.Series();
             XYChart.Series seriesG = new XYChart.Series();
             XYChart.Series seriesB = new XYChart.Series();
             XYChart.Series seriesGray = new XYChart.Series();
-
+            
             ObservableList dataR = seriesR.getData();
             ObservableList dataG = seriesG.getData();
             ObservableList dataB = seriesB.getData();
             ObservableList dataGray = seriesGray.getData();
-
+            
             for (int i = 0; i < 256; i++) {
                 dataR.add(new XYChart.Data(i, gambar.histogram.r[i]));
                 dataG.add(new XYChart.Data(i, gambar.histogram.g[i]));
@@ -237,20 +282,20 @@ public class MainPageController implements Initializable {
             chartHistogram.getData().add(seriesG);
             chartHistogram.getData().add(seriesB);
             chartHistogram.getData().add(seriesGray);
-
+            
             seriesR.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(255, 0, 0, 1.0);");
             seriesG.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 255, 0, 1.0);");
             seriesB.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 255, 1.0);");
             seriesGray.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(128, 128, 128, 1.0);");
         }
     }
-
+    
     private void openTabEkualisasiHistogram(int from, int to) {
         if (chartEqHistogram.getData().size() == 0) {
             gambar.equalize(from, to);
             gambar.updateBufferedImage();
             setIvImage(ivEqHistogram, gambar.biEqualized);
-
+            
             XYChart.Series seriesGray = new XYChart.Series();
             XYChart.Series seriesEq = new XYChart.Series();
             ObservableList dataGray = seriesGray.getData();
@@ -265,7 +310,7 @@ public class MainPageController implements Initializable {
             seriesEq.getNode().lookup(".chart-series-line").setStyle("-fx-stroke-width: 1px;-fx-stroke: rgba(0, 0, 0, 1.0);");
         }
     }
-
+    
     private void openTabChainCode() {
         if (chainData == null) {
             gambar.binarization();
@@ -279,7 +324,7 @@ public class MainPageController implements Initializable {
             textChainCode.setText(Operation.getOp().createTextChainCodeKodeBelok(chainData));
         }
     }
-
+    
     private void openTabKodeBelok() {
         if (belokData == null) {
             openTabChainCode();
@@ -291,7 +336,7 @@ public class MainPageController implements Initializable {
             textKodeBelok.setText(Operation.getOp().createTextChainCodeKodeBelok(belokData));
         }
     }
-
+    
     private void openTabTulang() {
         if (chainTulangData == null) {
             openTabChainCode();
@@ -310,51 +355,14 @@ public class MainPageController implements Initializable {
             textHuruf.setText(huruf.td.get(tChainTulang));
         }
     }
-
+    
     private void openTabHuruf() {
         openTabTulang();
     }
-
-    @FXML
-    public void sliderListener() {
-        int valFrom = (int) Math.round(sliderEqHistogramFrom.getValue());
-        int valTo = (int) Math.round(sliderEqHistogramTo.getValue());
-        int from = valFrom <= valTo ? valFrom : valTo;
-        int to = valFrom <= valTo ? valTo : valFrom;
-
-        chartEqHistogram.getData().clear();
-        openTabEkualisasiHistogram(from, to);
+    
+    private void openTabBuremin() {
+        setIvImage(ivBureminOri, gambar.biOriginal);
+        setIvImage(ivBureminResult, Operation.getOp().buremin(gambar.biOriginal));
     }
-
-    private void setImageView() {
-        setIvImage(ivMainOri, gambar.biOriginal);
-        setIvImage(ivMainGray, gambar.biGrayscale);
-        //setIvImage(ivMainGrayEq, gambar.biEqualized); // diganti dengan konvolusi samarkan
-        //setIvImage(ivMainBw, gambar.biBinary); // diganti dengan konvolusi sobel
-        setIvImage(ivHistogram, gambar.biOriginal);
-        //setIvImage(ivEqHistogram, gambar.biEqualized); // dipindah ke openTabEkualisasiHistogram
-        //setIvImage(ivChainCode, gambar.biBinary); // dipindah ke openTabChainCode
-        //setIvImage(ivChainCodeBolong, gambar.biBolong); // dipindah ke openTabChainCode
-        //setIvImage(ivKodeBelok, gambar.biBinary); // dipindah ke openTabKodeBelok
-        //setIvImage(ivKodeBelokBolong, gambar.biBolong); // dipindah ke openTabKodeBelok
-        setIvImage(ivTulangBw, gambar.biOriginal);
-        //setIvImage(ivTulangResult, gambar.biTulang); // dipindah ke openTabTulang
-        //setIvImage(ivHuruf, gambar.biTulang); // dipindah ke openTabHuruf
-    }
-
-    private void setIvImage(ImageView iv, BufferedImage image) {
-        // reset
-        double[] size = (double[]) iv.getUserData();
-        iv.setFitWidth(size[0]);
-        iv.setFitHeight(size[1]);
-
-        // set
-        if (image.getWidth() > iv.getFitWidth() || image.getHeight() > iv.getFitHeight()) {
-            iv.setImage(SwingFXUtils.toFXImage(image, null));
-        } else {
-            iv.setImage(SwingFXUtils.toFXImage(image, null));
-            iv.setFitHeight(image.getHeight());
-            iv.setFitWidth(image.getWidth());
-        }
-    }
+    
 }
