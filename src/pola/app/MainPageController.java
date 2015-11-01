@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
@@ -29,7 +27,6 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
-import javax.imageio.ImageIO;
 import pola.FXMain;
 
 /**
@@ -112,6 +109,12 @@ public class MainPageController implements Initializable {
     ImageView ivSobelOri;
     @FXML
     ImageView ivSobelResult;
+    @FXML
+    Tab tabHomogen8;
+    @FXML
+    ImageView ivHomogen8Ori;
+    @FXML
+    ImageView ivHomogen8Result;
     //
     File fileImageOri;
     Gambar gambar;
@@ -132,7 +135,7 @@ public class MainPageController implements Initializable {
         }
         for (ImageView iv : new ImageView[]{
             ivMainOri, ivMainGray, ivMainGrayEq, ivMainBw, ivHistogram, ivEqHistogram, ivChainCode, ivChainCodeBolong, ivKodeBelok, ivKodeBelokBolong, ivTulangBw, ivTulangResult, ivHuruf,
-            ivBureminOri, ivBureminResult, ivSobelOri, ivSobelResult}) {
+            ivBureminOri, ivBureminResult, ivSobelOri, ivSobelResult, ivHomogen8Ori, ivHomogen8Result}) {
             iv.setUserData(new double[]{iv.getFitWidth(), iv.getFitHeight()});
         }
 
@@ -155,6 +158,8 @@ public class MainPageController implements Initializable {
                 openTabBuremin();
             } else if (newValue == tabSobel) {
                 openTabSobel();
+            } else if (newValue == tabHomogen8) {
+                openTabHomogen8();
             }
         });
     }
@@ -172,6 +177,8 @@ public class MainPageController implements Initializable {
         tabTulang.setDisable(!active);
         tabHuruf.setDisable(!active);
         tabBuremin.setDisable(!active);
+        tabSobel.setDisable(!active);
+        tabHomogen8.setDisable(!active);
     }
 
     @FXML
@@ -195,23 +202,23 @@ public class MainPageController implements Initializable {
 
             // konvolusi: samar
             new Thread(() -> {
-                BufferedImage samar = Gambar.toBufferedImage(Konvolusi.samarkan(gambar.grayscale));
-                try {
-                    ImageIO.write(samar, "PNG", new File("D:\\samar.png"));
-                } catch (IOException ex) {
-                    Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                setIvImage(ivMainGrayEq, samar);
+//                BufferedImage samar = Gambar.toBufferedImage(Konvolusi.samarkan(gambar.grayscale));
+//                try {
+//                    ImageIO.write(samar, "PNG", new File("D:\\samar.png"));
+//                } catch (IOException ex) {
+//                    Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+                setIvImage(ivMainGrayEq, Gambar.toBufferedImage(Konvolusi.samarkan(gambar.grayscale)));
             }).start();
             // konvolusi: sobel  
             new Thread(() -> {
-                BufferedImage sobel = Gambar.toBufferedImage(Konvolusi.sobel(gambar.grayscale));
-                try {
-                    ImageIO.write(sobel, "PNG", new File("D:\\sobel.png"));
-                } catch (IOException ex) {
-                    Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                setIvImage(ivMainBw, sobel);
+//                BufferedImage sobel = Gambar.toBufferedImage(Konvolusi.sobel(gambar.grayscale));
+//                try {
+//                    ImageIO.write(sobel, "PNG", new File("D:\\sobel.png"));
+//                } catch (IOException ex) {
+//                    Logger.getLogger(MainPageController.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+                setIvImage(ivMainBw, Gambar.toBufferedImage(Konvolusi.sobel(gambar.grayscale)));
             }).start();
         } else {
             if (gambar == null) {
@@ -359,11 +366,20 @@ public class MainPageController implements Initializable {
 
     private void openTabBuremin() {
         setIvImage(ivBureminOri, gambar.biOriginal);
-        setIvImage(ivBureminResult, Operation.getOp().buremin(gambar.biOriginal));
+        new Thread(() -> {
+            setIvImage(ivBureminResult, Operation.getOp().buremin(gambar.biOriginal));
+        }).start();
     }
 
     private void openTabSobel() {
+        setIvImage(ivSobelOri, gambar.biOriginal);
+    }
 
+    private void openTabHomogen8() {
+        setIvImage(ivHomogen8Ori, gambar.biOriginal);
+        new Thread(() -> {
+            setIvImage(ivHomogen8Result, Operation.getOp().homogen8(gambar.biOriginal));
+        }).start();
     }
 
 }
