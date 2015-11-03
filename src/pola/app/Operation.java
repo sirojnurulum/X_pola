@@ -776,9 +776,137 @@ public class Operation {
         return tmp;
     }
 
-    public int[] calculateHomogen8(int[] a) {
-//        int x = Math.abs((a[0] * -1) + (a[1] * 0) + (a[2] * 1) + (a[3] * -2) + (a[4] * 0) + (a[5] * 2) + (a[6] * -1) + (a[7] * 0) + (a[8] * -1));
-//        int y = Math.abs((a[0] * -1) + (a[1] * -2) + (a[2] * -1) + (a[3] * 0) + (a[4] * 0) + (a[5] * 0) + (a[6] * 1) + (a[7] * 2) + (a[8] * 1));
+    public BufferedImage konvolusi(BufferedImage image, String action) {
+        BufferedImage tmp = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        tmp.getGraphics().drawImage(image, 0, 0, null);
+        int[] rasterData = tmp.getRaster().getPixels(0, 0, tmp.getWidth(), tmp.getHeight(), (int[]) null);
+        int a[];
+        int b[] = new int[9];
+        int result, resultMax = 0, resultMin = 0;
+        for (int y = 0; y < tmp.getHeight(); y++) {
+            for (int x = 0; x < tmp.getWidth(); x++) {
+                if (y == 0) {
+                    if (x == 0) {
+                        a = tmp.getRaster().getPixels(x, y, 2, 2, (int[]) null);
+                        b[0] = a[3];
+                        b[1] = a[2];
+                        b[2] = a[3];
+                        b[3] = a[1];
+                        b[4] = a[0];
+                        b[5] = a[1];
+                        b[6] = a[3];
+                        b[7] = a[2];
+                        b[8] = a[3];
+                    } else if (x == tmp.getWidth() - 1) {
+                        a = tmp.getRaster().getPixels(x - 1, y, 2, 2, (int[]) null);
+                        b[0] = a[2];
+                        b[1] = a[3];
+                        b[2] = a[2];
+                        b[3] = a[0];
+                        b[4] = a[1];
+                        b[5] = a[0];
+                        b[6] = a[2];
+                        b[7] = a[3];
+                        b[8] = a[2];
+                    } else {
+                        a = tmp.getRaster().getPixels(x - 1, y, 3, 2, (int[]) null);
+                        b[0] = a[3];
+                        b[1] = a[4];
+                        b[2] = a[5];
+                        b[3] = a[0];
+                        b[4] = a[1];
+                        b[5] = a[2];
+                        b[6] = a[3];
+                        b[7] = a[4];
+                        b[8] = a[5];
+                    }
+                } else if (y == tmp.getHeight() - 1) {
+                    if (x == 0) {
+                        a = tmp.getRaster().getPixels(x, y - 1, 2, 2, (int[]) null);
+                        b[0] = a[2];
+                        b[1] = a[3];
+                        b[2] = a[2];
+                        b[3] = a[0];
+                        b[4] = a[1];
+                        b[5] = a[0];
+                        b[6] = a[2];
+                        b[7] = a[3];
+                        b[8] = a[2];
+                    } else if (x == tmp.getWidth() - 1) {
+                        a = tmp.getRaster().getPixels(x - 1, y - 1, 2, 2, (int[]) null);
+                        b[0] = a[3];
+                        b[1] = a[2];
+                        b[2] = a[3];
+                        b[3] = a[1];
+                        b[4] = a[0];
+                        b[5] = a[1];
+                        b[6] = a[3];
+                        b[7] = a[2];
+                        b[8] = a[3];
+                    } else {
+                        a = tmp.getRaster().getPixels(x - 1, y - 1, 3, 2, (int[]) null);
+                        b[0] = a[0];
+                        b[1] = a[1];
+                        b[2] = a[2];
+                        b[3] = a[3];
+                        b[4] = a[4];
+                        b[5] = a[5];
+                        b[6] = a[1];
+                        b[7] = a[2];
+                        b[8] = a[3];
+                    }
+                } else {
+                    if (x == 0) {
+                        a = tmp.getRaster().getPixels(x, y - 1, 2, 3, (int[]) null);
+                        b[0] = a[1];
+                        b[1] = a[2];
+                        b[2] = a[1];
+                        b[3] = a[3];
+                        b[4] = a[2];
+                        b[5] = a[3];
+                        b[6] = a[5];
+                        b[7] = a[4];
+                        b[8] = a[5];
+                    } else if (x == tmp.getWidth() - 1) {
+                        a = tmp.getRaster().getPixels(x - 1, y - 1, 2, 3, (int[]) null);
+                        b[0] = a[0];
+                        b[1] = a[1];
+                        b[2] = a[0];
+                        b[3] = a[2];
+                        b[4] = a[3];
+                        b[5] = a[2];
+                        b[6] = a[4];
+                        b[7] = a[5];
+                        b[8] = a[4];
+                    } else {
+                        b = tmp.getRaster().getPixels(x - 1, y - 1, 3, 3, (int[]) null);
+                    }
+                }
+                switch (action) {
+                    case "homogen8":
+                        tmp.getRaster().setPixel(x, y, new int[]{calculateHomogen8(b)});
+                        break;
+                    case "sobel":
+                        result = calculateSobel(b);
+                        if (result > resultMax) {
+                            resultMax = result;
+                        }
+                        if (result < resultMin) {
+                            resultMin = result;
+                        }
+                        rasterData[((tmp.getWidth() * y) + x)] = calculateSobel(b);
+                        break;
+                }
+            }
+        }
+        if (action.equals("sobel")) {
+            rasterData = scalePixelValue(rasterData, resultMin, resultMax);
+            tmp.getRaster().setPixels(0, 0, tmp.getWidth(), tmp.getHeight(), rasterData);
+        }
+        return tmp;
+    }
+
+    public int calculateHomogen8(int[] a) {
         int c = 0;
         for (int i = 0; i < a.length; i++) {
             int b = a[i] - a[4];
@@ -786,58 +914,19 @@ public class Operation {
                 c = Math.abs(b);
             }
         }
-        return new int[]{Math.abs(c)};
+        return Math.abs(c);
     }
 
-    public BufferedImage homogen8(BufferedImage image) {
-        BufferedImage tmp = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
-        tmp.getGraphics().drawImage(image, 0, 0, null);
-        for (int y = 0; y < tmp.getHeight(); y++) {
-            for (int x = 0; x < tmp.getWidth(); x++) {
-                if (y == 0) {
-                    if (x == 0) {
-                        int[] a = tmp.getRaster().getPixels(x, y, 2, 2, (int[]) null);
-                        int[] b = {a[3], a[2], a[3], a[1], a[0], a[1], a[3], a[2], a[3]};
-                        tmp.getRaster().setPixel(x, y, calculateHomogen8(b));
-                    } else if (x == tmp.getWidth() - 1) {
-                        int[] a = tmp.getRaster().getPixels(x - 1, y, 2, 2, (int[]) null);
-                        int[] b = {a[2], a[3], a[2], a[0], a[1], a[0], a[2], a[3], a[2]};
-                        tmp.getRaster().setPixel(x, y, calculateHomogen8(b));
-                    } else {
-                        int[] a = tmp.getRaster().getPixels(x - 1, y, 3, 2, (int[]) null);
-                        int[] b = {a[3], a[4], a[5], a[0], a[1], a[2], a[3], a[3], a[4]};
-                        tmp.getRaster().setPixel(x, y, calculateHomogen8(b));
-                    }
-                } else if (y == tmp.getHeight() - 1) {
-                    if (x == 0) {
-                        int[] a = tmp.getRaster().getPixels(x, y - 1, 2, 2, (int[]) null);
-                        int[] b = {a[2], a[3], a[2], a[0], a[1], a[0], a[2], a[3], a[2]};
-                        tmp.getRaster().setPixel(x, y, calculateHomogen8(b));
-                    } else if (x == tmp.getWidth() - 1) {
-                        int[] a = tmp.getRaster().getPixels(x - 1, y - 1, 2, 2, (int[]) null);
-                        int[] b = {a[3], a[2], a[3], a[1], a[0], a[1], a[3], a[2], a[3]};
-                        tmp.getRaster().setPixel(x, y, calculateHomogen8(b));
-                    } else {
-                        int[] a = tmp.getRaster().getPixels(x - 1, y - 1, 3, 2, (int[]) null);
-                        int[] b = {a[0], a[1], a[2], a[3], a[4], a[5], a[0], a[1], a[2]};
-                        tmp.getRaster().setPixel(x, y, calculateHomogen8(b));
-                    }
-                } else {
-                    if (x == 0) {
-                        int[] a = tmp.getRaster().getPixels(x, y - 1, 2, 3, (int[]) null);
-                        int[] b = {a[1], a[2], a[1], a[3], a[2], a[3], a[5], a[4], a[5]};
-                        tmp.getRaster().setPixel(x, y, calculateHomogen8(b));
-                    } else if (x == tmp.getWidth() - 1) {
-                        int[] a = tmp.getRaster().getPixels(x - 1, y - 1, 2, 3, (int[]) null);
-                        int[] b = {a[0], a[1], a[0], a[2], a[3], a[2], a[4], a[5], a[4]};
-                        tmp.getRaster().setPixel(x, y, calculateHomogen8(b));
-                    } else {
-                        int[] a = tmp.getRaster().getPixels(x - 1, y - 1, 3, 3, (int[]) null);
-                        tmp.getRaster().setPixel(x, y, calculateHomogen8(a));
-                    }
-                }
-            }
+    public int calculateSobel(int[] a) {
+        int x = Math.abs((a[0] * -1) + (a[1] * 0) + (a[2] * 1) + (a[3] * -2) + (a[4] * 0) + (a[5] * 2) + (a[6] * -1) + (a[7] * 0) + (a[8] * -1));
+        int y = Math.abs((a[0] * -1) + (a[1] * -2) + (a[2] * -1) + (a[3] * 0) + (a[4] * 0) + (a[5] * 0) + (a[6] * 1) + (a[7] * 2) + (a[8] * 1));
+        return (x + y);
+    }
+
+    public int[] scalePixelValue(int[] data, int min, int max) {
+        for (int i = 0; i < data.length; i++) {
+            data[i] = (255 * ((data[i]) - (min))) / ((max) - (min));
         }
-        return tmp;
+        return data;
     }
 }

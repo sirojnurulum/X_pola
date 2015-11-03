@@ -373,12 +373,15 @@ public class MainPageController implements Initializable {
 
     private void openTabSobel() {
         setIvImage(ivSobelOri, gambar.biOriginal);
+        new Thread(() -> {
+            setIvImage(ivSobelResult, Operation.getOp().konvolusi(gambar.biOriginal, "sobel"));
+        }).start();
     }
 
     private void openTabHomogen8() {
         setIvImage(ivHomogen8Ori, gambar.biOriginal);
         new Thread(() -> {
-            setIvImage(ivHomogen8Result, Operation.getOp().homogen8(gambar.biOriginal));
+            setIvImage(ivHomogen8Result, Operation.getOp().konvolusi(gambar.biOriginal, "homogen8"));
         }).start();
     }
 

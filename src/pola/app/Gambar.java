@@ -547,7 +547,7 @@ public class Gambar {
                 threshold = i;
             }
         }
-
+        System.out.println("treshold : " + threshold);
         return threshold;
     }
 
