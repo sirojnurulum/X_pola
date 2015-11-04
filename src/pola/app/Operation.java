@@ -918,14 +918,16 @@ public class Operation {
     }
 
     public int calculateSobel(int[] a) {
-        int x = Math.abs((a[0] * -1) + (a[1] * 0) + (a[2] * 1) + (a[3] * -2) + (a[4] * 0) + (a[5] * 2) + (a[6] * -1) + (a[7] * 0) + (a[8] * -1));
-        int y = Math.abs((a[0] * -1) + (a[1] * -2) + (a[2] * -1) + (a[3] * 0) + (a[4] * 0) + (a[5] * 0) + (a[6] * 1) + (a[7] * 2) + (a[8] * 1));
-        return (x + y);
+        int sx[] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
+        int sy[] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
+        int x = Math.abs((a[0] * sx[0]) + (a[1] * sx[1]) + (a[2] * sx[2]) + (a[3] * sx[3]) + (a[4] * sx[4]) + (a[5] * sx[5]) + (a[6] * sx[6]) + (a[7] * sx[7]) + (a[8] * sx[8]));
+        int y = Math.abs((a[0] * sy[0]) + (a[1] * sy[1]) + (a[2] * sy[2]) + (a[3] * sy[3]) + (a[4] * sy[4]) + (a[5] * sy[5]) + (a[6] * sy[6]) + (a[7] * sy[7]) + (a[8] * sy[8]));
+        return (int) (x + y);
     }
 
     public int[] scalePixelValue(int[] data, int min, int max) {
         for (int i = 0; i < data.length; i++) {
-            data[i] = (255 * ((data[i]) - (min))) / ((max) - (min));
+            data[i] = (255 * (data[i]) - (min)) / ((max) - (min));
         }
         return data;
     }
