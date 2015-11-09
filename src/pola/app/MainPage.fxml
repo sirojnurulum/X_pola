@@ -34,7 +34,7 @@
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                             </GridPane.margin>
                                         </ImageView>
-                                        <Button fx:id="btnPilihGambar" mnemonicParsing="false" onAction="#chooseImage" prefHeight="24.0" prefWidth="90.0" text="Pilih Gambar" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+                                        <Button fx:id="btnPilihGambar" mnemonicParsing="false" onAction="#chooseImage" prefHeight="25.0" prefWidth="104.0" text="Pilih Gambar" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
                                         <ImageView fx:id="ivMainGray" fitHeight="200.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                                             <GridPane.margin>
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
