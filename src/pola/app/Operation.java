@@ -8,6 +8,7 @@ package pola.app;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -43,6 +44,7 @@ public class Operation {
         }
         return op;
     }
+// <editor-fold defaultstate="collapsed" desc="rengse - ke deui ngomena">
 
     public List<List<String>> getChainCode(BufferedImage bolongImage) {
         BufferedImage tmp = new BufferedImage(bolongImage.getColorModel(), bolongImage.copyData(null), bolongImage.isAlphaPremultiplied(), null);
@@ -775,11 +777,13 @@ public class Operation {
         }
         return tmp;
     }
+//</editor-fold>
 
     public BufferedImage konvolusi(BufferedImage image, String action) {
         BufferedImage tmp = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         tmp.getGraphics().drawImage(image, 0, 0, null);
         int[] rasterData = tmp.getRaster().getPixels(0, 0, tmp.getWidth(), tmp.getHeight(), (int[]) null);
+        System.out.println(Arrays.toString(rasterData));
         int a[];
         int b[] = new int[9];
         int result, resultMax = 0, resultMin = 0;
@@ -894,25 +898,39 @@ public class Operation {
                         if (result < resultMin) {
                             resultMin = result;
                         }
-                        rasterData[((tmp.getWidth() * y) + x)] = calculateSobel(b);
+                        rasterData[((tmp.getWidth() * y) + x)] = result;
+                        break;
+                    case "emboss":
+                        result = calculateEmboss(b);
+                        if (result > resultMax) {
+                            resultMax = result;
+                        }
+                        if (result < resultMin) {
+                            resultMin = result;
+                        }
+                        rasterData[((tmp.getWidth() * y) + x)] = result;
                         break;
                 }
             }
         }
-        if (action.equals("sobel")) {
+        if (action.equals("sobel") || action.equals("emboss")) {
             rasterData = scalePixelValue(rasterData, resultMin, resultMax);
             tmp.getRaster().setPixels(0, 0, tmp.getWidth(), tmp.getHeight(), rasterData);
         }
         return tmp;
     }
 
+    public int[] scalePixelValue(int[] data, int min, int max) {
+        for (int i = 0; i < data.length; i++) {
+            data[i] = (255 * (data[i]) - (min)) / ((max) - (min));
+        }
+        return data;
+    }
+
     public int calculateHomogen8(int[] a) {
         int c = 0;
         for (int i = 0; i < a.length; i++) {
-            int b = a[i] - a[4];
-            if (Math.abs(b) > 0) {
-                c = Math.abs(b);
-            }
+            c = a[i] - a[4];
         }
         return Math.abs(c);
     }
@@ -922,13 +940,51 @@ public class Operation {
         int sy[] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
         int x = Math.abs((a[0] * sx[0]) + (a[1] * sx[1]) + (a[2] * sx[2]) + (a[3] * sx[3]) + (a[4] * sx[4]) + (a[5] * sx[5]) + (a[6] * sx[6]) + (a[7] * sx[7]) + (a[8] * sx[8]));
         int y = Math.abs((a[0] * sy[0]) + (a[1] * sy[1]) + (a[2] * sy[2]) + (a[3] * sy[3]) + (a[4] * sy[4]) + (a[5] * sy[5]) + (a[6] * sy[6]) + (a[7] * sy[7]) + (a[8] * sy[8]));
-        return (int) (x + y);
+        return (x + y);
     }
 
-    public int[] scalePixelValue(int[] data, int min, int max) {
-        for (int i = 0; i < data.length; i++) {
-            data[i] = (255 * (data[i]) - (min)) / ((max) - (min));
-        }
-        return data;
+    public int calculateEmboss(int[] a) {
+        int sx[] = {-8, 0, 0, 0, 4, 0, 0, 0, 8};
+        int z = Math.abs((a[0] * sx[0]) + (a[1] * sx[1]) + (a[2] * sx[2]) + (a[3] * sx[3]) + (a[4] * sx[4]) + (a[5] * sx[5]) + (a[6] * sx[6]) + (a[7] * sx[7]) + (a[8] * sx[8]));
+        return z;
     }
+
+    public BufferedImage emboss(BufferedImage src) {
+        int width = src.getWidth();
+        int height = src.getHeight();
+        BufferedImage dst = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int upperLeft = 0;
+                int lowerRight = 0;
+                if (i > 0 && j > 0) {
+                    upperLeft = src.getRGB(j - 1, i - 1);
+                }
+                if (i < height - 1 && j < width - 1) {
+                    lowerRight = src.getRGB(j + 1, i + 1);
+                }
+                int redDiff = ((lowerRight >> 16) & 255) - ((upperLeft >> 16) & 255);
+                int greenDiff = ((lowerRight >> 8) & 255) - ((upperLeft >> 8) & 255);
+                int blueDiff = (lowerRight & 255) - (upperLeft & 255);
+                int diff = redDiff;
+                if (Math.abs(greenDiff) > Math.abs(diff)) {
+                    diff = greenDiff;
+                }
+                if (Math.abs(blueDiff) > Math.abs(diff)) {
+                    diff = blueDiff;
+                }
+                int grayColor = 128 + diff;
+
+                if (grayColor > 255) {
+                    grayColor = 255;
+                } else if (grayColor < 0) {
+                    grayColor = 0;
+                }
+                int newColor = (grayColor << 16) + (grayColor << 8) + grayColor;
+                dst.setRGB(j, i, newColor);
+            }
+        }
+        return dst;
+    }
+
 }
